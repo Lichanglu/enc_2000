@@ -1,0 +1,215 @@
+        <form id="wmform">
+			<table width="753" height="420" border="0">
+	          	<tr>
+					<td class="$image_prex$itemnametd" width="200">$video.quality$</td>
+					<td width="543" align="left">
+						<input style="margin-right:4px;" class="quality" name="quality" type="radio" value="1" checked="checked" onclick="changeQuality(this.value)" /> $video.high$
+						<input style="margin-right:4px;" class="quality" name="quality" type="radio" value="2" onclick="changeQuality(this.value)" /> $video.low$
+					</td>
+	            </tr>
+	            <tr style="display: none">
+	            		<td class="$image_prex$itemnametd">$video.status$</td>
+	            		<td align="left">
+	            			<input style="margin-right:4px;" name="videoStatus" type="radio" value="enable" checked="checked" /> $video.statusenable$
+	            			<input style="margin-right:4px;" name="videoStatus" type="radio" value="disable" /> $video.statusdisable$
+	            		</td>
+	            </tr>
+	            <tr>
+	              <td class="$image_prex$itemnametd">$video.resolution$</td>
+	              <td>
+	                <select name="resolution" style="width:150px;">
+						<option value="0">Auto</option>
+						<option value="1">1920x1080</option>
+						<option value="2">1280x720</option>
+						<option value="3">1400x1050</option>
+						<option value="4">1366x768</option>
+						<option value="5">1280x1024</option>
+						<option value="6">1280x768</option>
+						<option value="7">1024x768</option>
+						<option value="8">720x480</option>
+						<option value="9">352x288</option>
+	                </select>
+	              </td>
+	            </tr>
+	            <tr>
+	              <td class="$image_prex$itemnametd">$video.maginfit$</td>
+	              <td>
+	                <input type="radio" name="zoomModel" value="0" />
+	                $video.ratio$
+	                <input style="margin-left:15px;" type="radio" name="zoomModel" value="1" />
+	                $video.stretch$
+	              </td>
+	            </tr>
+	            <tr>
+	              <td class="$image_prex$itemnametd">$video.framerate$</td>
+	              <td><input class="validate[required, custom[integer], min[1],max[60]] inputtext" id="fpsValue" type="text" name="fpsValue" /><font style="font-size:12px; color:#FF0000; margin-left:5px;">(1~60)</font></td>
+	            </tr>
+	            <tr>
+	              <td class="$image_prex$itemnametd">$video.gop$</td>
+	              <td><input class="validate[required, custom[integer], min[0],max[1000]] inputtext" id="interframeSpace" type="text" name="interframeSpace" /><font style="font-size:12px; color:#FF0000; margin-left:5px;">(0~1000)</font></td>
+	            </tr>
+	            <tr>
+	              <td class="$image_prex$itemnametd">$video.bitrate$</td>
+	              <td>
+	              <input id="codeRate" class="validate[required, custom[integer], min[128],max[20000]] inputtext" type="text" name="codeRate" style="margin-right:5px;"/>kbps<font style="font-size:12px; color:#FF0000; margin-left:5px;">(128-20000)</font></td>
+	            </tr>
+	            <tr>
+	              <td colspan="2" style="text-align:center;padding-right:185px;">
+	                <input id="refreshbtn" type="button" class="$image_prex$click_btn" value="$video.refresh$" />
+	                <input id="setbtn" type="button" class="$image_prex$click_btn" value="$video.save$" />
+	              </td>
+	            </tr>
+	          </table>
+        </form>
+<script>
+var inputTab = 1;
+function initInputTab(val){}
+function initMergeTab(val){}
+function initSceneSet() {
+	if(jQuery('#sceneSet').val()==3) {
+		jQuery('#advancedSet').prop('disabled', false).css({'color': '#276CD7'});
+	} else {
+		jQuery('#advancedSet').prop('disabled', true). css({'color': '#808080'});
+	}
+}
+
+function initUIEnable(quality){
+	if(quality == "2"){
+		jQuery("select[name='resolution']").attr("disabled","disabled");
+		jQuery("input[name='zoomModel']").attr("disabled","disabled");
+		jQuery("select[name='sceneSet']").attr("disabled","disabled");
+		jQuery("input[name='caption']").attr("disabled","disabled");
+		jQuery("input[name='logo']").attr("disabled","disabled");
+	}else{
+		jQuery("select[name='resolution']").removeAttr("disabled");
+		jQuery("input[name='zoomModel']").removeAttr("disabled");
+		jQuery("select[name='sceneSet']").removeAttr("disabled");
+		jQuery("input[name='caption']").removeAttr("disabled");
+		jQuery("input[name='logo']").removeAttr("disabled");
+	}
+}
+
+function changeQuality(q){
+	if(q == "2"){
+		jQuery("select[name='resolution']").attr("disabled","disabled");
+		jQuery("input[name='zoomModel']").attr("disabled","disabled");
+		jQuery("select[name='sceneSet']").attr("disabled","disabled");
+		jQuery("input[name='caption']").attr("disabled","disabled");
+		jQuery("input[name='logo']").attr("disabled","disabled");
+	}else{
+		jQuery("select[name='resolution']").removeAttr("disabled");
+		jQuery("input[name='zoomModel']").removeAttr("disabled");
+		jQuery("select[name='sceneSet']").removeAttr("disabled");
+		jQuery("input[name='caption']").removeAttr("disabled");
+		jQuery("input[name='logo']").removeAttr("disabled");
+	}
+	jQueryAjaxHtml({
+		data: {"actioncode": 305, "quality": q, "input": inputTab},
+		effectsOn: true
+	});
+}
+
+jQuery(function() {
+	
+	//表单赋值操作必须在表单美化之前，所以美化代码放置在cgi中
+	
+	//初始化sceneSet事件
+	jQuery('#sceneSet').change(initSceneSet);
+	
+	/*
+	 * 初始化设置和刷新按钮事件
+	 */
+	jQuery('#setbtn').click(function() {
+		var validate = validateFormByID('wmform');
+		if(validate) {
+			var data = {"actioncode": "401", "input": inputTab};
+			var params = getFormItemValue('wmform');
+			if(params) {
+				jQuery.extend(data, params);
+			}
+			jQueryAjaxCmd({
+				"data": data,
+				success:function(ret) {
+					//alert(ret);
+					if(ret == 1) {
+						alert('$opt.success$');
+					}
+				}
+			});
+		} else {
+			return false;
+		}
+	});
+	
+	jQuery('#refreshbtn').click(function() {
+		jQuery('#menub').click();
+	});
+	
+	/*
+	 * 初始化表单验证
+	 */
+	initFormValidation();
+	
+	jQuery('#advancedSet').click(function() {
+		closeAllPrompt();
+		jQueryAjaxHtml({
+			data: {"actioncode": "318"},
+			success: function(innerStr) {
+				art.dialog({
+					title: '$video.advancedsettitle$',
+					okValue: '$video.ok$',
+					cancelValue: '$video.cancel$',
+					lock: true,
+					fixed: true,
+					background: '#600', // 背景色
+					opacity: 0.87, // 透明度
+					content: innerStr,
+					ok: function(){
+						var validate = validateFormByID('wmform_videoAdvancedSet');
+						if(validate) {
+							var data = {"actioncode": "415"};
+							var params = getFormItemValue('wmform_videoAdvancedSet');
+							if(params) {
+								jQuery.extend(data, params);
+							}
+							jQueryAjaxCmd({
+								"data": data,
+								success: function(ret) {
+									if(ret == 1) {
+										alert('$opt.success$');
+										closeAllPrompt();
+										return true;
+									} else {
+										return false;
+									}
+								}
+							});
+						} else {
+							return false;
+						}
+					},
+					cancel: function(){
+						closeAllPrompt();
+						return true;
+					}
+				});
+				
+				initFormValidation();
+				
+				/*
+				 * request data for the form 
+				 */
+				jQueryAjaxCmd({
+					"data": {"actioncode": "414"},
+					success: function(retscript) {
+						eval(retscript);
+					}
+				});
+			}
+			
+		});
+		
+	});
+	//changeQuality(jQuery("input[name='quality']:checked").val());
+});
+</script> 

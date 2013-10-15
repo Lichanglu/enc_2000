@@ -1,0 +1,322 @@
+<!--[if IE]>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<![endif]-->
+<html>
+<head>
+<!--meta http-equiv="Content-Type" content="text/html; charset=gb2312" /-->
+<title>User Login</title>
+<style type="text/css">
+body {
+	margin:0;
+	padding:0;
+	width:100%;
+	height:100%;
+}
+* {
+	margin:0;
+	padding:0;
+}
+/*.border{width:500px;border: #105085 1px solid;margin:0 auto; padding:10px;}*/
+.loginlogo {
+	width:305px;
+	height:103px;
+	margin:0 auto;
+	padding:0px 0 10px 0;
+}
+.center {
+	width:100%;
+	height:220px;
+	background:#4fa4ea;
+}
+.mr { padding:120px 0 0 0;}
+.user {
+	width:300px;
+	height:180px;
+	/*background:url(../images/login_bg.jpg) no-repeat left bottom;*/
+	margin:0 auto;
+	padding:10px 30px;
+}
+.user ul{margin:10px 0 0 0;}
+.user ul li{ font-family: Tahoma, Arial, "宋体", Helvetica, sans-serif;list-style:none;padding-top:5px;
+height:20px; text-align:center;color:#fff;font-size:18px; font-weight:800;}
+
+.text{ width:200px;height:21px;line-height:21px;border:1px solid #184e8e;font-size:18px;font-weight:600;}
+.kongge {margin-top:20px;}
+p { font-family: Tahoma, Arial, "宋体"; font-size:12px; font-weight:800;text-align:center; margin:15px 0 0 0; color:#105085;}
+
+/*去掉按钮虚线边框*/
+button::-moz-focus-inner, input[type="reset"]::-moz-focus-inner, input[type="button"]::-moz-focus-inner, input[type="submit"]::-moz-focus-inner, input[type="file"] > input[type="button"]::-moz-focus-inner { 
+	border:none;
+}
+
+.login_btn {
+	background-color: #4FA4EA;
+    background-image: url("../images/login_btn.png");
+    border: 0 none;
+    cursor: pointer;
+    font-size: 14px;
+    height: 28px;
+    line-height: 30px;
+    outline: medium none;
+    padding: 0;
+    text-align: center;
+    width: 80px;
+}
+.login_btn:hover {
+	background-image:url(../images/login_btn_hover.png);
+	outline:none;
+}
+
+.btnletterspace {
+	letter-spacing:10px;
+	padding-left:10px;
+}
+
+.TW-btnletterspace {
+	letter-spacing:10px;
+	padding-left:15px;
+}
+
+.US_btnletterspace {
+	letter-spacing:0px;	
+	padding-left:1px;
+}
+
+.pwletterspace {
+	letter-spacing:23px;
+	padding-left:20px;
+}
+
+.TW-pwletterspace {
+	letter-spacing:23px;
+	padding-left:20px;
+}
+
+.US_pwletterspace {
+	letter-spacing:0px;
+	padding-left:0px;
+}
+</style>
+
+<!--link media="screen" rel="stylesheet" type="text/css" href="../ValidationEngine/css/validationEngine.jquery.css" /-->
+<style type="text/css">
+/* Z-INDEX */
+ .formError { z-index: 9990; }
+    .formError .formErrorContent { z-index: 991; }
+    .formError .formErrorArrow { z-index: 996; }
+    
+    .formErrorInsideDialog.formError { z-index: 5000; }
+    .formErrorInsideDialog.formError .formErrorContent { z-index: 5001; }
+    .formErrorInsideDialog.formError .formErrorArrow { z-index: 5006; }
+
+
+
+
+.inputContainer {
+	position: relative;
+	float: left;
+}
+
+.formError {
+	position: absolute;
+	top: 300px;
+	left: 300px;
+	display: block;
+	cursor: pointer;
+}
+
+.ajaxSubmit {
+	padding: 20px;
+	background: #55ea55;
+	border: 1px solid #999;
+	display: none
+}
+
+.formError .formErrorContent {
+	width: 100%;
+	background: #FFFFFF;
+	position:relative;
+	color: #EE0101;
+	width: 150px;
+	font-size: 12px;
+	border: 2px solid #ddd;
+	box-shadow: 0 0 6px #FF0000;
+	-moz-box-shadow: 0 0 6px #FF0000;
+	-webkit-box-shadow: 0 0 6px #FF0000;
+	padding: 4px 10px 4px 10px;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+}
+
+.greenPopup .formErrorContent {
+	background: #33be40;
+}
+
+.blackPopup .formErrorContent {
+	background: #393939;
+	color: #FFF;
+}
+
+.formError .formErrorArrow {
+	width: 15px;
+	margin: -2px 0 0 13px;
+	position:relative;
+}
+body[dir='rtl'] .formError .formErrorArrow,
+body.rtl .formError .formErrorArrow {
+	margin: -2px 13px 0 0;
+}
+
+.formError .formErrorArrowBottom {
+	box-shadow: none;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	margin: 0px 0 0 12px;
+	top:2px;
+}
+
+.formError .formErrorArrow div {
+	border-left: 2px solid #ddd;
+	border-right: 2px solid #ddd;
+	box-shadow: 0 2px 3px #FF0000;
+	-moz-box-shadow: 0 2px 3px #FF0000;
+	-webkit-box-shadow: 0 2px 3px #FF0000;
+	font-size: 0px;
+	height: 1px;
+	background: #FFFFFF;
+	margin: 0 auto;
+	line-height: 0;
+	font-size: 0;
+	display: block;
+}
+
+.formError .formErrorArrowBottom div {
+	box-shadow: none;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+}
+
+.greenPopup .formErrorArrow div {
+	background: #33be40;
+}
+
+.blackPopup .formErrorArrow div {
+	background: #393939;
+	color: #FFF;
+}
+
+.formError .formErrorArrow .line10 {
+	width: 15px;
+	border: none;
+}
+
+.formError .formErrorArrow .line9 {
+	width: 13px;
+	border: none;
+}
+
+.formError .formErrorArrow .line8 {
+	width: 11px;
+}
+
+.formError .formErrorArrow .line7 {
+	width: 9px;
+}
+
+.formError .formErrorArrow .line6 {
+	width: 7px;
+}
+
+.formError .formErrorArrow .line5 {
+	width: 5px;
+}
+
+.formError .formErrorArrow .line4 {
+	width: 3px;
+}
+
+.formError .formErrorArrow .line3 {
+	width: 1px;
+	border-left: 2px solid #ddd;
+	border-right: 2px solid #ddd;
+	border-bottom: 0 solid #ddd;
+}
+
+.formError .formErrorArrow .line2 {
+	width: 3px;
+	border: none;
+	background: #ddd;
+}
+
+.formError .formErrorArrow .line1 {
+	width: 1px;
+	border: none;
+	background: #ddd;
+}
+	
+</style>
+<script type="text/javascript" src="../JS/jquery.min.js" ></script>
+<script type="text/javascript" src="../JS/jquery.cookies.2.2.0.min.js" ></script>
+<script type="text/javascript" src="../ValidationEngine/js/jquery.validationEngine.js"></script>
+<script type="text/javascript" src="../ValidationEngine/js/languages/jquery.validationEngine-$lang_suffix$.js"></script>
+<script type="text/javascript" src="../JS/utils.js" ></script>
+<script type="text/javascript">
+function submitForm() {
+	var validate = validateFormByID('loginform');
+	if(validate) {
+		jQuery('#loginform').submit();
+	} else {
+		return false;
+	}		
+}
+
+jQuery(function() {
+	//表单验证
+	initFormValidation();
+	//修正IE的hover
+	if(jQuery.browser.msie) {
+		jQuery('#submitbtn').hover(function() {
+			jQuery(this).css({"background-image" : "url(../images/login_btn_hover.png)"});
+		}, function() {
+			jQuery(this).css({"background-image" : "url(../images/login_btn.png)"});
+		});
+	}
+	//用户名获取焦点
+	jQuery('#username').focus();
+	//初始化按钮的单击和键盘事件
+	jQuery('#submitbtn').click(submitForm);
+	jQuery('#username, #password').keydown(function(evt) {
+		if(evt.keyCode == 13) {
+			submitForm();
+		}
+	});
+
+});
+</script>
+
+</head>
+
+<body>
+<div class="mr">
+<div class="border">
+  <div class="loginlogo"><img src="../images/loginlogo.jpg" width="305" height="101" align="middle" /></div>
+  <div class="center">
+    <div class="user">
+	  <form id="loginform" name="loginform" action="encoder.cgi" method="post">
+		<input type="hidden" name="actioncode" value="120">
+      <ul>
+        <li>$login.username$</li>
+        <li><input type="text" name="username" id="username"  class="text validate[required]"/></li>
+        <li class="kongge $image_prex$pwletterspace">$login.password$</li>
+        <li><input type="password" name="password" id="password" class="text validate[required]"/></li>
+      </ul>
+	  </form>
+    <p><input id="submitbtn" class="login_btn $image_prex$btnletterspace" type="button" value="$login.button$"/></p>
+    </div>
+  </div>
+  <p>$ini.companyname$</p>
+</div>
+</div>
+</body>
+</html>

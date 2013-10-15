@@ -1,0 +1,359 @@
+        <form enctype="multipart/form-data" id="wmform" action="encoder.cgi" method="post" target="upload">
+		<div class="ui-tabs" id="tabs">
+			<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-widget-width-full ui-corner-all" role="tablist" style="width: 99.2%;">
+				<li class="ui-state-default ui-corner-top ui-tabs-active ui-state-active" tabIndex="1" id="tabs-1">$video.input$1</li>
+				<li class="ui-state-default ui-corner-top" tabIndex="2" id="tabs-2">$video.input$2</li>
+				<li class="ui-state-default ui-corner-top" tabIndex="3" id="tabs-3">$video.merge$</li>
+			</ul>
+			<input type="hidden" name="input" value="1" />
+			<div id="tabs-content" class="ui-widget-content ui-widget-width-full ui-corner-bottom" style="clear: both;">
+				<div class="ui-tabs-inner-content">
+				  <table style="width:758px; height:500px;" border="0">
+					<tr>
+					  <td width="184" height="23">&nbsp;</td>
+					  <td width="559"><h5>$titlelogo.title$</h5></td>
+					</tr>
+					<tr>
+		         <td class="$image_prex$itemnametd"></td>
+		         <td>
+					   <input style="margin-right:5px;" type="checkbox" id="caption" name="caption" value="0" />$titlelogo.displaytitle$
+		         </td>
+		         </tr>
+					<tr>
+					  <td class="$image_prex$itemnametd">$titlelogo.position$</td>
+					  <td>
+						<select id="cap_position" name="cap_position" style="width:150px;">
+							<option value="0">Absolute</option>
+							<option value="1">Top Left</option>
+							<option value="2">Top Right</option>
+							<option value="3">Bottom Left</option>
+							<option value="4">Bottom Right</option>
+							<option value="5">Centered</option>
+						</select>
+					  </td>
+					</tr>
+					<tr>
+					  <td class="$image_prex$itemnametd">$titlelogo.coordinate$</td>
+					  <td>
+					  X<input id="cap_x" class="inputtext" name="cap_x" type="text" style="width:50px; width:47px\9; margin-left:5px;" />
+					   <font style="font-size:12px; color:#FF0000; margin-right:10px;">(0~<span class="max_x">0</span>)</font>
+					  Y<input id="cap_y" class="inputtext" name="cap_y" type="text" style="width:50px; width:47px\9; margin-left:5px;" />			  
+					   <font style="font-size:12px; color:#FF0000;">(0~<span class="max_y">0</span>)</font>
+					  </td>
+					</tr>
+					<tr>
+					  <td class="$image_prex$itemnametd">$titlelogo.content$</td>
+					  <td>
+						<input id="cap_text" class="inputtext" name="cap_text" type="text" /><font style="color:#FF0000;font-size:12px;">$titlelogo.lettersatmost$</font>
+					  </td>
+					</tr>
+					<tr>
+					  <td height="33" class="$image_prex$itemnametd">$titlelogo.transparency$</td>
+					  <td>
+						<div id="cap_bright_slider" class="slider">
+						  <div id="cap_bright_bar" class="bar"></div>
+						</div>
+						<input id="cap_brightness" readOnly name="cap_brightness" type="text" class="show_label" style="text-align:center; margin-left:20px; width:25px;"/>%              </td>
+					</tr>
+					<tr>
+					  <td>&nbsp;</td>
+					  <td>
+						<input id="cap_displaytime" type="checkbox" name="cap_displaytime" />
+						$titlelogo.displaytime$ 
+						<input id="synchTimeBtn" style="margin-left:20px; display:none;" type="button" class="click_btn_long" value="$titlelogo.timesynch$" />
+					</tr>
+					<tr>
+					  <td height="16" colspan="2"><div style="width:375px; height:1px; margin-left:75px; background-color:#186FCA;"></div></td>
+					</tr>
+					<tr>
+					  <td height="37">&nbsp;</td>
+					  <td><h5>$titlelogo.logo$</h5></td>
+					</tr>
+					<tr>
+		              <td class="$image_prex$itemnametd"></td>
+		              <td>
+		               	<input type="checkbox" id="logo" name="logo" value="0" />$titlelogo.displaylogo$
+		              </td>
+		            </tr>
+					<tr>
+					  <td class="$image_prex$itemnametd">$titlelogo.position$</td>
+					  <td>
+						<select id="logo_position" name="logo_position" style="width:150px;">
+							<option value="0">Absolute</option>
+							<option value="1">Top Left</option>
+							<option value="2">Top Right</option>
+							<option value="3">Bottom Left</option>
+							<option value="4">Bottom Right</option>
+							<option value="5">Centered</option>
+						</select>
+		              </td>
+					</tr>
+					<tr>
+					  <td class="$image_prex$itemnametd">$titlelogo.coordinate$</td>
+					  <td>
+					  X<input id="logo_x" class="inputtext" name="logo_x" type="text" style="width:50px; width:49px\9; margin-left:5px;" />
+						<font style="font-size:12px; color:#FF0000; margin-right:10px;">(0~<span class="max_x">0</span>)</font>
+					  Y<input id="logo_y" class="inputtext" name="logo_y" type="text" style="width:50px; width:49px\9; margin-left:5px;" />
+						<font style="font-size:12px; color:#FF0000;">(0~<span class="max_y">0</span>)</font>
+					  </td>
+					</tr>
+					<tr>
+					  <td height="28" class="$image_prex$itemnametd">$titlelogo.logopic$</td>
+					  <td>
+						<input type="file" name="file" />
+						<input type="hidden" name="actioncode" value="411">
+						<input id="uploadImgBtn" type="button" style="margin-left:70px;margin-top:-10px;" class="$image_prex$click_btn" value="$titlelogo.upload$" /></td>
+					</tr>
+					<tr>
+					  <td height="25" class="$image_prex$itemnametd">&nbsp;</td>
+					  <td><font style="color:#FF0000; font-size:12px;">$titlelogo.logoprompt$</font></td>
+					</tr>
+					<tr>
+					  <td height="39" class="$image_prex$itemnametd">$titlelogo.transparency$</td>
+					  <td>
+						<div id="logo_bright_slider" class="slider">
+						  <div id="logo_bright_bar" class="bar"></div>
+						</div>
+						<input id="logo_brightness" readOnly name="logo_brightness" type="text" class="show_label" style="text-align:center; margin-left:20px; width:25px;"/>%				</td>
+					</tr>
+					<tr>
+					  <td height="67">&nbsp;</td>
+					  <td>
+						<input id="refreshBtn" type="button" class="$image_prex$click_btn" value="$titlelogo.refresh$" />
+						<input id="saveBtn" type="button" class="$image_prex$click_btn" value="$titlelogo.save$" />              </td>
+					</tr>
+				  </table>
+				</div>
+			</div>
+      	</div>
+        </form>
+		<iframe name="upload" style="display:none"></iframe>
+<script>
+var inputTab = 1;
+
+function initMaxPos(max_x, max_y){
+	jQuery("#cap_x").addClass("validate[required, custom[integer], min[0], max["+ max_x +"]]");
+	jQuery("#cap_y").addClass("validate[required, custom[integer], min[0], max["+ max_y +"]]");
+	jQuery("#logo_x").addClass("validate[required, custom[integer], min[0], max["+ max_x +"]]");
+	jQuery("#logo_y").addClass("validate[required, custom[integer], min[0], max["+ max_y +"]]");
+	jQuery(".max_x").text(max_x);
+	jQuery(".max_y").text(max_y);
+}
+
+function initInputTab(tab, lang){
+	inputTab = tab;
+	if(tab == 1){
+		// switch this tab on
+		jQuery("#tabs-1").addClass("ui-tabs-active");
+		jQuery("#tabs-1").addClass("ui-state-active");
+		jQuery("#tabs-2").removeClass("ui-tabs-active");
+		jQuery("#tabs-2").removeClass("ui-state-active");
+		jQuery("#tabs-3").removeClass("ui-tabs-active");
+		jQuery("#tabs-3").removeClass("ui-state-active");
+		setFormItemValue('wmform', [{'name': 'audioInput','value': '1','type': 'radio' }]);
+	}else if(tab == 2){
+		jQuery("#tabs-2").addClass("ui-tabs-active");
+		jQuery("#tabs-2").addClass("ui-state-active");
+		jQuery("#tabs-1").removeClass("ui-tabs-active");
+		jQuery("#tabs-1").removeClass("ui-state-active");
+		jQuery("#tabs-3").removeClass("ui-tabs-active");
+		jQuery("#tabs-3").removeClass("ui-state-active");
+		setFormItemValue('wmform', [{'name': 'audioInput','value': '2','type': 'radio' }]);
+	}else{
+		jQuery("#tabs-3").addClass("ui-tabs-active");
+		jQuery("#tabs-3").addClass("ui-state-active");
+		jQuery("#tabs-1").removeClass("ui-tabs-active");
+		jQuery("#tabs-1").removeClass("ui-state-active");
+		jQuery("#tabs-2").removeClass("ui-tabs-active");
+		jQuery("#tabs-2").removeClass("ui-state-active");
+		jQuery("#r1").removeAttr ("disabled");
+		jQuery("#r2").removeAttr ("disabled");
+	}
+	//alert("lang = " + lang);
+	if(lang==1){
+		jQuery("#cap_text").addClass("validate[maxSize[46]]");
+	}else{
+		jQuery("#cap_text").addClass("validate[maxSize[46]]");
+	}
+}
+
+function initMergeTab(mp_status){
+	if(mp_status == 2){
+		jQuery("#tabs-3").addClass("ui-tabs-active");
+		jQuery("#tabs-3").addClass("ui-state-active");
+		jQuery("#tabs-1").removeClass("ui-tabs-active");
+		jQuery("#tabs-1").removeClass("ui-state-active");
+		jQuery("#tabs-2").removeClass("ui-tabs-active");
+		jQuery("#tabs-2").removeClass("ui-state-active");
+		jQuery("#tabs-1").unbind("click").css({"cursor": "text"});;
+		jQuery("#tabs-2").unbind("click").css({"cursor": "text"});;
+	}else{
+		jQuery("#tabs-3").unbind("click").css({"cursor": "text"});;
+	}
+}
+
+function formatTime(date) {
+	var year = date.getFullYear();
+	var month = date.getMonth() + 1;
+	var day = date.getDate();
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	var seconds = date.getSeconds();
+	return year + "/" + month + "/" + day + "/" + hours + "/" + minutes + "/" + seconds;
+}
+
+function captionCtrlInit(isChecked){
+	if(isChecked==1){
+		jQuery("#caption").attr("checked", "checked");
+		jQuery('#cap_position').removeAttr('disabled');
+		jQuery('#cap_text').removeAttr('disabled');
+		jQuery('#cap_displaytime').removeAttr('disabled');
+		if(jQuery('#cap_position').val() != '0') {
+			jQuery('#cap_x').prop('disabled', true);
+			jQuery('#cap_y').prop('disabled', true);
+		}else{
+			jQuery('#cap_x').prop('disabled', false);
+			jQuery('#cap_y').prop('disabled', false);
+		}
+	}else{
+		jQuery('#cap_position').attr("disabled", "disabled");
+		jQuery('#cap_x').attr("disabled", "disabled");
+		jQuery('#cap_y').attr("disabled", "disabled");
+		jQuery('#cap_text').attr("disabled", "disabled");
+		jQuery('#cap_displaytime').attr("disabled", "disabled");
+	}
+}
+
+function logoCtrlInit(isChecked){
+	if(isChecked == 1){
+		jQuery("#logo").attr("checked", "checked");
+		jQuery('#logo_position').removeAttr('disabled');
+		jQuery('#uploadImgBtn').removeAttr('disabled');
+		jQuery("input[type=file]").removeAttr('disabled');
+		if(jQuery('#logo_position').val() != '0') {
+			jQuery('#logo_x').prop('disabled', true);
+			jQuery('#logo_y').prop('disabled', true);
+		}else{
+			jQuery('#logo_x').prop('disabled', false);
+			jQuery('#logo_y').prop('disabled', false);
+		}
+	}else{
+		jQuery('#logo_position').attr("disabled", "disabled");
+		jQuery('#logo_x').attr("disabled", "disabled");
+		jQuery('#logo_y').attr("disabled", "disabled");
+		jQuery("input[type=file]").attr("disabled", "disabled");
+		jQuery('#uploadImgBtn').attr("disabled", "disabled");
+	}
+}
+
+jQuery(function() {
+	initBrightnessSlider();
+	initFormValidation();
+	
+	jQuery("input[type=file]").filestyle({ 
+	     image: "../fileStyle/css/choose-file.png",
+	     imageheight : 22,
+	     imagewidth : 52,
+	     width : 150
+	 });
+	
+	jQuery("#tabs li").click(function () {
+		inputTab = parseInt(jQuery(this).attr("tabIndex"));
+		if (!jQuery(this).hasClass('ui-tabs-active')) {
+			// switch all tabs off
+			jQuery(".ui-tabs-active").removeClass("ui-tabs-active");
+			jQuery(".ui-state-active").removeClass("ui-state-active");
+			// switch this tab on
+			jQuery(this).addClass("ui-tabs-active");
+			jQuery(this).addClass("ui-state-active");
+		}
+		jQueryAjaxHtml({
+			data: {"actioncode": 308, "input": inputTab},
+			effectsOn: true
+		});
+	});
+
+	jQuery('#cap_position').change(function() {
+		if(jQuery(this).val() != '0') {
+			jQuery('#cap_x').prop('disabled', true);
+			jQuery('#cap_y').prop('disabled', true);
+		} else {
+			jQuery('#cap_x').prop('disabled', false);
+			jQuery('#cap_y').prop('disabled', false);
+		}
+	});
+
+	jQuery('#logo_position').change(function() {
+		if(jQuery(this).val() != '0') {
+			jQuery('#logo_x').prop('disabled', true);
+			jQuery('#logo_y').prop('disabled', true);
+		} else {
+			jQuery('#logo_x').prop('disabled', false);
+			jQuery('#logo_y').prop('disabled', false);
+		}
+	});
+
+	jQuery('#refreshBtn').click(function() {
+		jQuery('#menue').click();
+	});
+	
+	jQuery("#caption").change(function(){
+		var isCaptionCheck = jQuery("#caption").attr("checked") == "checked" ? 1 : 0;
+		setFormItemValue('wmform', [{'name': 'caption','value': isCaptionCheck,'type': 'checkbox' }]);
+		captionCtrlInit(isCaptionCheck);
+	});
+	
+	jQuery("#logo").change(function(){
+		var isLogoCheck = jQuery("#logo").attr("checked") == "checked" ? 1 : 0;
+		setFormItemValue('wmform', [{'name': 'logo','value': isLogoCheck,'type': 'checkbox' }]);	
+		logoCtrlInit(isLogoCheck);
+	});
+	
+	jQuery('#saveBtn').click(function() {
+		var validate = validateFormByID('wmform');
+		if (validate) {
+			var cap_displaytime = jQuery('#cap_displaytime');
+			if(cap_displaytime.prop('checked')) {
+				cap_displaytime.val("1");
+			} else {
+				cap_displaytime.val("0");
+			}
+			var caption = 0;
+			var logo = 0;
+			if(jQuery("#caption").prop('checked')){
+				jQuery("#caption").val(1);
+			}
+			if(jQuery("#logo").prop('checked')){
+				jQuery("#logo").val(1);
+			}
+			formSet.setHiddenValue('#wmform ', 'actioncode', '411');
+			formSet.setHiddenValue('#wmform ', 'input', inputTab);
+			jQuery('#wmform').submit();
+		} else {
+			return false;
+		}
+	});
+	
+	jQuery('#uploadImgBtn').click(function() {
+		formSet.setHiddenValue('#wmform ', 'actioncode', '419');
+		formSet.setHiddenValue('#wmform ', 'input', inputTab);
+		jQuery('#wmform').submit();
+	});
+	
+	jQuery('#synchTimeBtn').click(function() {
+		var data = {"actioncode": "224"};
+		var nowTimeStr = formatTime(new Date());
+		data['clienttime'] = nowTimeStr;
+		//alert(data.clienttime)
+		jQueryAjaxCmd({
+			"data": data,
+			success: function(ret) {
+				alert(ret);
+			}
+		});
+	});
+	// init the change handlers for the position select.
+	// initPositionSelect();
+	
+});
+</script> 

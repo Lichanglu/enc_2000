@@ -1,0 +1,596 @@
+        <form id="wmform">
+          <table style="table-layout:fixed;" id="streamTable" width="763" border="0" cellpadding="0" cellspacing="0" class="stream_table">
+            <tr>
+              <td width="10%" height="30" class="$image_prex$itemnametd"><div align="center"><h6>$output.id$</h6></div></td>
+              <td width="15%" class="$image_prex$itemnametd"><div align="center"><h6>$output.input$</h6></div></td>
+              <td width="15%" class="$image_prex$itemnametd"><div align="center">
+                <h6>$output.protocal$</h6>
+              </div></td>
+              <td width="35%" class="$image_prex$itemnametd"><div align="center">
+                <h6>$output.broadcast$</h6>
+              </div></td>
+              <td width="25%" class="$image_prex$itemnametd"><div align="center">
+                <h6>$output.status$</h6>
+              </div></td>
+            </tr>
+            <!--tr>
+              <td height="30" class="$image_prex$itemnametd"><h6 name="index" align="center">1</h6></td>
+              <td><input name="protocal" readonly class="show_label" value="" /></td>
+              <td><input name="ip" readonly class="show_label" value="" /></td>
+              <td><input name="port" readonly class="show_label" value="" /></td>
+              <td><select name="status">
+			  	<option value="1">ACTIVE</option>
+			    <option value="3">STOP</option>
+			    <option value="4">DELETE</option>
+              </select><a class="detailSet" style="margin-left:10px;" href="#">详细设置</a></td>
+            </tr-->
+            <tr id="addSetTr">
+              <td height="30" colspan="5" class="$image_prex$itemnametd" style="text-align:right;">
+			 	 <a id="addSet" style="margin-right:25px;" href="#">$output.add$</a>
+			  </td>
+            </tr>
+          </table>
+		  <div style="margin-top:10px; margin-right:10px; text-align:left;">
+			<a id="rtspset" href="#">$output.rtspconfig$</a></td>
+          </div>
+          <div style="margin-top:20px;text-align:center;">
+            <label>
+            <input id="refreshBtn" type="button" class="$image_prex$click_btn" value="$output.refresh$" />
+            </label>
+            <label>
+            <input id="setBtn" type="button" class="$image_prex$click_btn" value="$output.save$" />
+            </label>
+          </div>
+        </form>
+
+<script>
+	
+/*
+ * 初始化表格行数据
+ */
+
+var rowCount = 0;
+function initTableData(dataArray) {
+	if(dataArray && typeof dataArray == 'object') {
+		rowCount = dataArray.length;
+		for(var i=0; i<dataArray.length; i++) {
+			var item = dataArray[i];
+			if(item) {
+				//增加行
+//				for (var i = 0; i < 2; i++) {
+//				var item = {'rowIndex': '1', 'type': '2', 'ip': '192.168.0.3', 'videoPort':'1260', 'status': '3'};
+					var index = i + 1;
+					var inputStream = item['inputStream'];
+					var playurl = item['playurl'];
+					var rowIndex = item['rowIndex'];
+					var protocal = '';
+					var type = item['type'];
+					var ip = item['ip'];
+					var videoPort = item['videoPort'];
+					var audioPort = item['audioPort'];
+					var status = item['status'];
+
+					var playurTd = '<td><input name="playurl' + index + '" readonly class="show_label" value="' + playurl + '" style="width: 240px"/></td>';
+
+					switch(type) {
+						case '0': {
+							protocal = 'INVALID';
+							break;
+						}
+						case '1': {
+							protocal = 'TS';
+							break;
+						}
+						case '2': {
+							protocal = 'RTP';
+							playurTd = '<td><a href="encoder.cgi?actioncode=420&ip='+ ip +'&vPort='+videoPort+'&aPort='+audioPort+'&iStream=' + inputStream +'">SDP Download</a></td>';
+							break;
+						}
+						case '3': {
+							protocal = 'RTSP';
+							playurTd = '<td><a href="#" id="playUrlAnchor" onclick="playUrlAnchor()">$output.playurl$</a></td>';
+							break;
+						}
+						case '4': {
+							protocal = 'TS_OVER_RTP';
+							break;
+						}
+					}
+
+					var trInnerStr = '<tr><td height="35" class="$image_prex$itemnametd"><h6 name="index' + index + '" align="center">' + index + '</h6></td>';
+					trInnerStr += '<td><input name="inputStream' + index + '" readonly class="show_label" value="' + inputStream + '" /></td>';
+					trInnerStr += '<td><input name="protocal' + index + '" readonly class="show_label" value="' + protocal + '" /><input type="hidden" name="rowIndex' + index + '" value="' + rowIndex + '"/><input type="hidden" name="type' + index + '" value="' + type + '"/></td>';
+					trInnerStr += playurTd;
+					trInnerStr += '<td style="display:none"><input name="ip' + index + '" readonly class="show_label" value="' + ip + '" /></td>';
+					trInnerStr += '<td style="display:none"><input name="videoPort' + index + '" readonly class="show_label" value="' + videoPort + '" /></td>';
+					trInnerStr += '<td><select style="width:100px;" name="status' + index + '">';
+					switch(status) {
+						case '1':{
+							trInnerStr += '<option selected value="1">Active</option><option value="3">Stop</option><option value="4">Remove</option>';
+							break;
+						}
+						case '3':{
+							trInnerStr += '<option value="1">Active</option><option selected value="3">Stop</option><option value="4">Remove</option>';
+							break;
+						}
+						case '4':{
+							trInnerStr += '<option value="1">Active</option><option value="3">Stop</option><option selected value="4">Remove</option>';
+							break;
+						}
+					}
+					trInnerStr += '</select><a class="detailSet" style="margin-left:10px;" href="#">$output.detail$</a></td></tr>';
+					jQuery(trInnerStr).insertBefore('#addSetTr');
+//				}
+			}
+		}
+	}
+}
+
+
+/*
+ * 修改弹出层初始化
+ */
+
+function initDetailSetHandler() {
+	jQuery('.detailSet').click(function() {
+		var jQueryThis = jQuery(this);
+		var trObj = jQueryThis.parent().parent();
+		var rowIndex = trObj.find('input[name^="rowIndex"]').val();
+		var type = trObj.find('input[name^="type"]').val();
+		var ip = trObj.find('[name^="ip"]').val();
+		var videoPort = trObj.find('[name^="videoPort"]').val();
+		var status = trObj.find('[name^="status"]').val();
+		
+		var data = {"actioncode": "404","rowIndex": rowIndex, "type": type, "ip": ip, "videoPort": videoPort, "status": status};
+		closeAllPrompt();
+		jQueryAjaxHtml({
+			"data": {"actioncode": "316"},
+			success: function(innerStr) {
+				art.dialog({
+					title: '$output.detail$',
+					okValue: '$output.ok$',
+					cancelValue: '$output.cancel$',
+					lock: true,
+					fixed: true,
+				    background: '#600', // 背景色
+				    opacity: 0.87,	// 透明度
+				    content: innerStr,
+				    ok: function() {
+				        var validate = validateFormByID('wmform_outputAdvancedSet');
+						if(validate) {
+							var data = {"actioncode": "405"};
+							var params = getFormItemValue('wmform_outputAdvancedSet');
+							if(params) {
+								jQuery.extend(data, params);
+								jQueryAjaxCmd({
+									'data': data,
+									success: function(ret) {
+										if(ret == 1) {
+											alert('$opt.success$');
+											//refresh output page
+											//setTimeout("jQuery('#menud').click();", 100);
+					        				return true;	
+											//closeAllPrompt();
+										} else {
+											return false;
+										}
+									}
+								});
+							}
+						} else {
+							return false;
+						}
+				    },
+				    cancel: function() {
+				    	closeAllPrompt();
+				    	return true;
+				    }
+				});
+				
+				initFormValidation();
+				
+				//填充表单
+				jQueryAjaxCmd({
+					"data": data,
+					success: function(retScript) {
+						//alert(retScript);
+						eval(retScript);
+						// 在chrome中有点不兼容
+						var browser = navigator.userAgent.toLowerCase();
+						
+						if(jQuery('#tc_flag').prop('checked')) {
+							jQuery('#tc_rate').prop('disabled', false);
+						} else {
+							jQuery('#tc_rate').prop('disabled', true);
+						}
+						
+						jQuery('#tc_flag').change(function() {
+							var browser = navigator.userAgent.toLowerCase();
+							if(jQuery(this).prop('checked')) {
+								if (browser.indexOf('chrome') != -1 || browser.indexOf('safari') != -1) {
+									jQuery('#tc_rate').prop('disabled', true);
+								} else {
+									jQuery('#tc_rate').prop('disabled', false);
+								}
+							} else {
+								if (browser.indexOf('chrome') != -1 || browser.indexOf('safari') != -1) {
+									jQuery('#tc_rate').prop('disabled', false);
+								} else {
+									jQuery('#tc_rate').prop('disabled', true);
+								}
+							}
+						});
+						
+						
+						/*if(jQuery('#type').val()=='1' || jQuery('#type').val()=='4') {
+							jQuery('#audioPort').prop('disabled', true);
+						} else {
+							jQuery('#audioPort').prop('disabled', false);
+						}
+						
+						if(jQuery('#type').val()=='3') {
+							jQuery('#ip').prop('disabled', true);
+							jQuery('#ip').val('127.0.0.1');
+						} else {
+							jQuery('#ip').prop('disabled', false);
+							jQuery('#ip').val('');
+						}
+						jQuery('#type').change(function() {
+							if(jQuery('#type').val()=='1' || jQuery('#type').val()=='4') {
+								jQuery('#audioPort').prop('disabled', true);
+							} else {
+								jQuery('#audioPort').prop('disabled', false);
+							}
+							
+							if(jQuery('#type').val()=='3') {
+								jQuery('#ip').prop('disabled', true);
+								jQuery('#ip').val('127.0.0.1');
+							} else {
+								jQuery('#ip').prop('disabled', false);
+								jQuery('#ip').val('');
+							}
+						});*/
+					}
+				});
+				
+			}
+		});        
+	});
+	
+}
+function playUrlAnchor() {
+		//encoder.cgi?actioncode=420&ip='+ ip +'&vPort='+videoPort+'&aPort='+audioPort+'&iStream=' + inputStream +'
+		closeAllPrompt();
+		jQueryAjaxHtml({
+			data: {"actioncode": "321"},
+			success: function(innerStr) {
+				art.dialog({
+					title: '$output.playurl$',
+					okValue: '$output.ok$',
+					cancelValue: '$output.cancel$',
+					lock: true,
+					fixed: true,
+					background: '#600', // 背景色
+					opacity: 0.87,	// 透明度
+					content: innerStr,
+					width:	400,
+					height: 200,
+					ok: function () {
+					
+					},
+					cancel: function() {
+						closeAllPrompt();
+						return true;
+					}
+				});
+			
+			}
+		});
+		
+}
+
+jQuery(function() {
+	//initTableData();
+	//formBeautify();
+	initFormValidation();
+	
+	/*
+	 * 按钮事件初始化
+	 */
+	
+	jQuery('#refreshBtn').click(function() {
+		jQuery('#menud').click();
+	});
+	
+	jQuery('#setBtn').click(function() {
+		var validate = validateFormByID('wmform');
+		if (validate) {
+			var data = {"actioncode": "402", "rowCount": rowCount};
+			var params = getFormItemValue('wmform');
+			
+			if(params) {
+				jQuery.extend(data, params);
+			}
+			
+			jQueryPostAjaxCmd({
+				'data': data,
+				success: function(ret) {
+					if(ret == 1) {
+						alert('$opt.success$');
+						//刷新
+						jQuery('#menud').click();
+					}
+				}
+			});
+		} else {
+			return false;
+		}
+		
+	});
+	
+	/*
+	 * 添加弹出层初始化
+	 */
+	
+	jQuery('#addSet').click(function() {
+		//最多只能8个
+		var length = jQuery('#streamTable tr').length;
+		if(length >= 10) {
+			return false;
+		}
+		
+		closeAllPrompt();
+		jQueryAjaxHtml({
+			data: {"actioncode": "319"},
+			success: function(innerStr) {
+				art.dialog({
+					title: '$output.add$',
+					okValue: '$output.ok$',
+					cancelValue: '$output.cancel$',
+					lock: true,
+					fixed: true,
+				    background: '#600', // 背景色
+				    opacity: 0.87,	// 透明度
+				    content: innerStr,
+				    ok: function () {
+						var validate = validateFormByID('wmform_outputAdvancedSet');
+						if(validate) {
+							var data = {"actioncode": "403"};
+							var params = getFormItemValue('wmform_outputAdvancedSet');
+							if(params) {
+								jQuery.extend(data, params);
+								jQueryAjaxCmd({
+									'data': data,
+									success: function(ret) {
+										if(ret == 1) {
+											alert('$opt.success$');
+											//refresh output page
+											setTimeout("jQuery('#menud').click();", 100);
+											//closeAllPrompt();
+					        				return true;	
+										} else if(ret == 3) {
+											alert('$output.mustmultiIP$');
+											return false;
+										} else {
+											return false;
+										}
+									}
+								});
+							}
+						} else {
+							return false;
+						}
+				    },
+				    cancel: function() {
+				    	closeAllPrompt();
+				    	return true;
+				    }
+				});
+				// 在chrome中有点不兼容
+				var browser = navigator.userAgent.toLowerCase();
+				initFormValidation();
+				
+				
+				jQuery('#tc_rate').prop('disabled', true);
+				jQuery('#tc_flag').change(function() {
+					var browser = navigator.userAgent.toLowerCase();
+					if(jQuery(this).prop('checked')) {
+						if (browser.indexOf('chrome') != -1 || browser.indexOf('safari') != -1) {
+							jQuery('#tc_rate').prop('disabled', true);
+						} else {
+							jQuery('#tc_rate').prop('disabled', false);
+						}
+					} else {
+						if (browser.indexOf('chrome') != -1 || browser.indexOf('safari') != -1) {
+							jQuery('#tc_rate').prop('disabled', false);
+						} else {
+							jQuery('#tc_rate').prop('disabled', true);
+						}
+					}
+				});
+				
+				jQuery('#audioPort').prop('disabled', true);
+				jQuery('#type').change(function() {
+
+					if(jQuery('#type').val()=='1')
+					{
+						jQuery('#ip').prop('disabled', false);
+						
+						jQuery('#ip').val('234.255.0.90');
+						jQuery('#videoPort').val('9500');
+						jQuery('#audioPort').prop('disabled', true);
+						jQuery('#audioPort').val('9500');
+					}
+					else if(jQuery('#type').val()=='2')
+					{
+						jQuery('#ip').prop('disabled', false);
+					
+						jQuery('#ip').val('235.255.6.80');
+						jQuery('#videoPort').val('8800');
+						jQuery('#audioPort').prop('disabled', false);
+						jQuery('#audioPort').val('8802');
+					}
+					else	if(jQuery('#type').val()=='3')
+					{
+						
+						jQuery('#ip').prop('disabled', true);
+						jQuery('#ip').val('127.0.0.1');
+						jQuery('#videoPort').val('6400');
+						jQuery('#audioPort').prop('disabled', false);
+						jQuery('#audioPort').val('6402');
+					}
+					else if(jQuery('#type').val()=='4')
+					{
+						jQuery('#ip').prop('disabled', false);
+						jQuery('#ip').val('232.5.6.7');
+						jQuery('#videoPort').val('7700');
+						jQuery('#audioPort').prop('disabled', true);
+						jQuery('#audioPort').val('7700');
+					}
+
+		/*			if(jQuery('#type').val()=='1' || jQuery('#type').val()=='4') {
+						jQuery('#audioPort').prop('disabled', true);
+					} else {
+						jQuery('#audioPort').prop('disabled', false);
+					}
+					
+					if(jQuery('#type').val()=='3') {
+						jQuery('#ip').prop('disabled', true);
+						jQuery('#ip').val('127.0.0.1');
+					}
+					else{
+						jQuery('#ip').prop('disabled', false);
+						jQuery('#ip').val('234.255.0.90');
+					}
+					*/
+				});
+			}
+		});        
+	});
+	
+	/*
+	 * RTSP弹出层初始化
+	 */
+	
+	jQuery('#rtspset').click(function() {
+		closeAllPrompt();
+		jQueryAjaxHtml({
+			data: {"actioncode": "317"},
+			success: function(innerStr) {
+				art.dialog({
+					title: '$output.rtspsettitle$',
+					okValue: '$output.ok$',
+					cancelValue: '$output.cancel$',
+					lock: true,
+					fixed: true,
+				    background: '#600', // 背景色
+				    opacity: 0.87,	// 透明度
+				    content: innerStr,
+				    ok: function() {
+				        var validate = validateFormByID('wmform_outputRTSPSet');
+						if(validate) {
+							var data = {"actioncode": "417"};
+							var params = getFormItemValue('wmform_outputRTSPSet');
+							if(params) {
+								jQuery.extend(data, params);
+							}
+							jQueryAjaxCmd({
+								'data': data,
+								success: function(ret) {
+									if(ret == 1) {
+										alert('$opt.success$');
+				        				return true;	
+									} else {
+										return false;
+									}
+								}
+							});
+						} else {
+							return false;
+						}
+				    },
+				    cancel: function() {
+				    	closeAllPrompt();
+				    	return true;
+				    }
+				});
+				
+				initFormValidation();
+				
+				jQueryAjaxCmd({
+					"data": {"actioncode": "416"},
+					success: function(retscript) {
+						eval(retscript);
+						// 在chrome中有点不兼容
+						var browser = navigator.userAgent.toLowerCase();
+
+						if(jQuery('#streamMode').val() == '0') {
+							jQuery('#rtspMultiIP').prop('disabled', true);
+							jQuery('#rtspMultiPort').prop('disabled', true);
+						} else {
+							jQuery('#rtspMultiIP').prop('disabled', false);
+							jQuery('#rtspMultiPort').prop('disabled', false);
+						}
+
+						if(jQuery('#streamMode2').val() == '0') {
+							jQuery('#rtspMultiIP2').prop('disabled', true);
+							jQuery('#rtspMultiPort2').prop('disabled', true);
+						} else {
+							jQuery('#rtspMultiIP2').prop('disabled', false);
+							jQuery('#rtspMultiPort2').prop('disabled', false);
+						}
+
+						jQuery('#streamMode').change(function() {
+							if(jQuery('#streamMode').val() == '0') {
+								jQuery('#rtspMultiIP').prop('disabled', true);
+								jQuery('#rtspMultiPort').prop('disabled', true);
+							} else {
+								jQuery('#rtspMultiIP').prop('disabled', false);
+								jQuery('#rtspMultiPort').prop('disabled', false);
+							}
+						});
+
+						jQuery('#streamMode2').change(function() {
+							if(jQuery('#streamMode2').val() == '0') {
+								jQuery('#rtspMultiIP2').prop('disabled', true);
+								jQuery('#rtspMultiPort2').prop('disabled', true);
+							} else {
+								jQuery('#rtspMultiIP2').prop('disabled', false);
+								jQuery('#rtspMultiPort2').prop('disabled', false);
+							}
+						});
+					}
+				});
+			}
+		});        
+	});
+	
+});
+
+function inputChangeReq(){
+	jQueryAjaxCmd({
+		"data": {"actioncode": "416", "input" : jQuery('#inputStream').val()},
+		success: function(retscript) {
+			eval(retscript);
+			// 在chrome中有点不兼容
+			var browser = navigator.userAgent.toLowerCase();
+			
+			if(jQuery('#streamMode').val() == '0') {
+				jQuery('#rtspMultiIP').prop('disabled', true);
+				jQuery('#rtspMultiPort').prop('disabled', true);
+			} else {
+				jQuery('#rtspMultiIP').prop('disabled', false);
+				jQuery('#rtspMultiPort').prop('disabled', false);
+			}
+			if(jQuery('#streamMode2').val() == '0') {
+				jQuery('#rtspMultiIP2').prop('disabled', true);
+				jQuery('#rtspMultiPort2').prop('disabled', true);
+			} else {
+				jQuery('#rtspMultiIP2').prop('disabled', false);
+				jQuery('#rtspMultiPort2').prop('disabled', false);
+			}
+		}
+	});
+
+}
+</script> 

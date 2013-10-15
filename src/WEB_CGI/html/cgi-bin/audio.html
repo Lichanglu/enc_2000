@@ -1,0 +1,187 @@
+      <form enctype="multipart/form-data" id="wmform">
+      <div class="ui-tabs" id="tabs">
+			<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-widget-width-full ui-corner-all" role="tablist" style="width: 99.2%;">
+				<li class="ui-state-default ui-corner-top ui-tabs-active ui-state-active" tabIndex="1" id="tabs-1">$video.input$1</li>
+				<li class="ui-state-default ui-corner-top"  tabIndex="2" id="tabs-2">$video.input$2</li>
+				<li class="ui-state-default ui-corner-top" tabIndex="3" id="tabs-3">$video.merge$</li>
+			</ul>
+			
+			<div id="tabs-content" class="ui-widget-content ui-widget-width-full ui-corner-bottom" style="clear: both;">
+				<div class="ui-tabs-inner-content">
+				  <table width="753" height="307" border="0">
+					<tr>
+					  <td width="210" height="37" class="$image_prex$itemnametd">$audio.input$</td>
+					  <td width="533">
+						<label><input type="radio" name="audioInput" value="1" disabled="disabled" id="r1" />line in 1</label>
+					  	<label><input style="margin-left:20px;" type="radio" name="audioInput" id="r2" value="2" disabled="disabled" />line in 2</label>
+					  </td>
+					</tr>
+					<tr>
+					  <td height="38" class="$image_prex$itemnametd">$audio.samplerate$</td>
+					  <td>
+						<select name="sampleRate" id="sampleRate">
+						  <option value="3">48KHz</option>
+						</select>
+					  </td>
+					</tr>
+					<tr>
+					  <td height="38" class="$image_prex$itemnametd">$audio.bitrate$</td>
+					  <td>
+						<select name="bitRate" id="bitRate">
+						  <option value="80000">80kbps</option>
+						  <option value="96000">96kbps</option>
+						  <option value="128000">128kbps</option>
+						</select>
+					  </td>
+					</tr>
+					<tr>
+					  <td height="38" class="$image_prex$itemnametd">$audio.audiolevelleft$</td>
+					  <td><select name="audioLevelLeft" style="margin-right:5px;">
+						<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+						<option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+						<option value="10">10</option>
+					  </select>db</td>
+					</tr>
+					<tr>
+					  <td height="38" class="$image_prex$itemnametd">$audio.audiolevelright$</td>
+					  <td><select name="audioLevelRight" style="margin-right:5px;">
+						<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+						<option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+						<option value="10">10</option>
+					  </select>db</td>
+					</tr>
+					<tr>
+					  <td height="35" class="$image_prex$itemnametd">$audio.mute$</td>
+					  <td>
+						<input type="checkbox" name="mute" /></td>
+					</tr>
+					
+					<tr>
+					  <td height="67" colspan="2" style="text-align:center; padding-right:160px;">
+						<input id="refreshBtn" type="button" class="$image_prex$click_btn" value="$audio.refresh$" />
+						<input id="saveBtn" type="button" class="$image_prex$click_btn" value="$audio.save$" />
+					  </td>
+					</tr>
+				  </table>
+				</div>
+			</div>
+      	</div>
+        </form>
+
+<script>
+var inputTab = 1;
+
+function initInputTab(tab){
+	inputTab = tab;
+	if(tab == 1){
+		// switch this tab on
+		jQuery("#tabs-1").addClass("ui-tabs-active");
+		jQuery("#tabs-1").addClass("ui-state-active");
+		jQuery("#tabs-2").removeClass("ui-tabs-active");
+		jQuery("#tabs-2").removeClass("ui-state-active");
+		jQuery("#tabs-3").removeClass("ui-tabs-active");
+		jQuery("#tabs-3").removeClass("ui-state-active");
+		setFormItemValue('wmform', [{'name': 'audioInput','value': '1','type': 'radio' }]);
+	}else if(tab == 2){
+		jQuery("#tabs-2").addClass("ui-tabs-active");
+		jQuery("#tabs-2").addClass("ui-state-active");
+		jQuery("#tabs-1").removeClass("ui-tabs-active");
+		jQuery("#tabs-1").removeClass("ui-state-active");
+		jQuery("#tabs-3").removeClass("ui-tabs-active");
+		jQuery("#tabs-3").removeClass("ui-state-active");
+		setFormItemValue('wmform', [{'name': 'audioInput','value': '2','type': 'radio' }]);
+	}else{
+		jQuery("#tabs-3").addClass("ui-tabs-active");
+		jQuery("#tabs-3").addClass("ui-state-active");
+		jQuery("#tabs-1").removeClass("ui-tabs-active");
+		jQuery("#tabs-1").removeClass("ui-state-active");
+		jQuery("#tabs-2").removeClass("ui-tabs-active");
+		jQuery("#tabs-2").removeClass("ui-state-active");
+		jQuery("#r1").removeAttr ("disabled");
+		jQuery("#r2").removeAttr ("disabled");
+	}
+}
+
+function initMergeTab(mp_status){
+	if(mp_status == 2){
+		jQuery("#tabs-3").addClass("ui-tabs-active");
+		jQuery("#tabs-3").addClass("ui-state-active");
+		jQuery("#tabs-1").removeClass("ui-tabs-active");
+		jQuery("#tabs-1").removeClass("ui-state-active");
+		jQuery("#tabs-2").removeClass("ui-tabs-active");
+		jQuery("#tabs-2").removeClass("ui-state-active");
+		jQuery("#tabs-1").unbind("click").css({"cursor": "text"});;
+		jQuery("#tabs-2").unbind("click").css({"cursor": "text"});;
+	}else{
+		jQuery("#tabs-3").unbind("click").css({"cursor": "text"});;
+	}
+}
+
+function changeBitRate(rateVal){
+		if(rateVal == '1'){
+			jQuery("#bitRate")[0].selectedIndex = 0;
+			jQuery("#bitRate").attr("disabled", "disabled");
+		}else{
+			jQuery("#bitRate").removeAttr("disabled");
+		}
+}
+jQuery(function() {
+	/*
+	 * form validation
+	 */
+	initFormValidation();
+	/*
+	 * init button event handler
+	 */
+	jQuery('#refreshBtn').click(function() {
+		jQuery('#menuc').click();
+	});
+	
+	jQuery("#sampleRate").change(function(){
+		if(this.value == '1'){
+			jQuery("#bitRate")[0].selectedIndex = 0;
+			jQuery("#bitRate").attr ("disabled", "disabled");
+		}else{
+			jQuery("#bitRate").removeAttr ("disabled");
+		}
+	});
+
+	jQuery("#tabs li").click(function () {
+		inputTab = parseInt(jQuery(this).attr("tabIndex"));
+		if (!jQuery(this).hasClass('ui-tabs-active')) {
+			// switch all tabs off
+			jQuery(".ui-tabs-active").removeClass("ui-tabs-active");
+			jQuery(".ui-state-active").removeClass("ui-state-active");
+			// switch this tab on
+			jQuery(this).addClass("ui-tabs-active");
+			jQuery(this).addClass("ui-state-active");
+		}
+		jQueryAjaxHtml({
+			data: {"actioncode": 306, "input": inputTab, "effectsOn": true},
+			effectsOn: true
+		});
+	});
+	
+	jQuery('#saveBtn').click(function() {
+		var validate = validateFormByID('wmform');
+		if (validate) {
+			var data = {"actioncode": "410", "input": inputTab};
+			var params = getFormItemValue('wmform');
+			if(params) {
+				jQuery.extend(data, params);
+			}
+			jQueryAjaxCmd({
+				"data": data,
+				success: function(ret) {
+					if(ret == 1) {
+						alert('$opt.success$');
+					}
+				}
+			});
+		} else {
+			return false;
+		}
+	});
+	
+});
+</script> 
