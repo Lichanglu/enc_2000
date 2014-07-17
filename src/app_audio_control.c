@@ -99,6 +99,40 @@ int MMP_audio_info_get(int input, MMPAudioParam *aparam)
 	mid_mutex_unlock(g_audio_control_handle->mutex[input]);
 	return 0;
 }
+
+
+int MMP_audio_set_mute(int input, unsigned char *data)
+{
+	AudioEncodeParam info;
+
+	AudioEncodeParam out_info;
+	int channel = 0 ;
+	int mp_status = get_mp_status();
+
+	if(IS_MP_STATUS == mp_status) {
+		input = SIGNAL_INPUT_MP;
+	}
+
+	channel = input_get_high_channel(input);
+	app_web_get_ainfo(channel, &info);
+
+	if(NULL == data) {
+		PRINTF("error,data=NULL\!");
+		return -1;
+	}
+
+	PRINTF("input=%d mp_status=%d,data[0]=%d\n", input, mp_status, data[0]);
+
+	if(1 == data[0]) {
+		info.Mute = 1;
+	} else {
+		info.Mute = 0;
+	}
+
+	app_web_set_ainfo(channel, &info, &out_info);
+	return 0;
+}
+
 //*change = 0,notingh change,  1,mmp change, 2, only other change
 static int mmp_check_audio_param(AudioEncodeParam *oldinfo, MMPAudioParam *newinfo, int *change)
 {

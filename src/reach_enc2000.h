@@ -19,8 +19,8 @@
 
 
 
-#define  IP_ADDR_1 "192.168.4.193"
-#define  IP_ADDR_2 "192.168.4.189"
+#define  IP_ADDR_1 "192.168.4.163"
+#define  IP_ADDR_2 "192.168.4.167"
 
 #define 	ETH0 0
 #define 	ETH0_1  1

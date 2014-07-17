@@ -151,7 +151,7 @@
 #define BufferLen 500
 #define UPFILEHEADLEN 8
 
-#define WEBVERSION "1.1.3"
+#define WEBVERSION "1.1.4"
 
 
 #define INPUT1_HIGH_STRING "input 1 / high"

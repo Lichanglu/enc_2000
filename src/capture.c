@@ -1391,10 +1391,10 @@ static Void *detect_video_tsk(Void *prm)
 								app_get_signal_info(input, &signal_info);
 
 								//Ä£Äâ²»½øÔÔ±ß
-										if(signal_info.digital  == 0) {
-											PRINTF("signal_info.digital=%d\n", signal_info.digital);
-											//capture_fill_dei_frame(historyStatus[i].chId, historyStatus[i].vipInstId, pcaphand->link_id, 1);
-										}
+								if(signal_info.digital  == 0) {
+									PRINTF("signal_info.digital=%d\n", signal_info.digital);
+									//capture_fill_dei_frame(historyStatus[i].chId, historyStatus[i].vipInstId, pcaphand->link_id, 1);
+								}
 
 								//DeiLink_chDynamicSetOutRes params = {0};
 								//params.chId = 0;
@@ -1452,14 +1452,13 @@ static Void *detect_video_tsk(Void *prm)
 						}
 					}
 
-					else
-					{
-						if(videoStatus.frameHeight == 540)
-						{
+					else {
+						if(videoStatus.frameHeight == 540) {
 							PRINTF(" i will close fill dei frame\n");
 							//capture_fill_dei_frame(historyStatus[i].chId, historyStatus[i].vipInstId, pcaphand->link_id, 0);
 						}
-						}
+					}
+
 					*input_have_signal = 1;
 				} else {
 					if(*input_have_signal == 1) {
@@ -1706,7 +1705,7 @@ int capture_fill_dei_frame(int chid, int queid, int linkid, int open)
 	blindinfo.queId = queid;
 	blindinfo.numBlindArea = 2;
 
-	int width =2;
+	int width = 2;
 	blindwin.startX = 0;
 	blindwin.startY = 0 ;
 	blindwin.width = width;

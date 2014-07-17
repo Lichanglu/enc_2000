@@ -65,7 +65,8 @@
 #include "app_video_control.h"
 #include "app_signal.h"
 
-#define	MAX_SOURCE_NUM	2
+#include "net_far_ctrl.h"
+
 ENC2000_LINK_STRUCT	gEnc2000;
 static int program_begin = 1;
 /*
@@ -1441,42 +1442,8 @@ int main()
 		StartEncoderMangerServer2();
 	}
 
-#ifdef HAVE_IP_XML
-	int ret = 0;
-	pthread_t new_tcp_thread_id[MAX_SOURCE_NUM];
-	int index1 = 0, index2 = 1;
-	pthread_t st_report_id[MAX_SOURCE_NUM];
-
-	ret = pthread_create(&new_tcp_thread_id[index1], NULL, open_new_tcp_task, (void *)&index1);
-
-	if(ret < 0) {
-		ERR_PRN("create DSP1TCPTask() failed\n");
-		return 0;
-	}
-
-	ret = pthread_create(&st_report_id[index1], NULL, report_pthread_fxn, (void *)&index1);
-
-	if(ret < 0) {
-		ERR_PRN("create DSP1TCPTask() failed\n");
-		return 0;
-	}
-
-	if(ENC2000 == sys_get_product_type()) {
-		ret = pthread_create(&new_tcp_thread_id[index2], NULL, open_new_tcp_task, (void *)&index2);
-
-		if(ret < 0) {
-			ERR_PRN("create DSP2TCPTask() failed\n");
-			return 0;
-		}
-
-		ret = pthread_create(&st_report_id[index2], NULL, report_pthread_fxn, (void *)&index2);
-
-		if(ret < 0) {
-			ERR_PRN("create DSP2TCPTask() failed\n");
-			return 0;
-		}
-	}
-
+#ifdef SUPPORT_XML_PROTOCOL
+	init_new_tcp_module();
 #endif
 
 	//	create_TextTime_info();
@@ -1485,6 +1452,10 @@ int main()
 	reach_writeyuv_process(&gEnc2000);
 #endif
 	init_camera_ctrl();
+	
+#if  EDUKIT_FAR_CTRL
+	init_edukit_far_ctrl();
+#endif
 
 	g_osd_enable = TRUE;
 	create_TextTime_info();

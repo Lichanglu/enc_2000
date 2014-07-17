@@ -259,6 +259,7 @@ static void *InHostStreamProcess(bits_user_param *param)
 				memcpy(temp_h264Header, (unsigned char *)(pFullBuf->addr), *temp_header_length);
 				vdata = (unsigned char *)(pFullBuf->addr);
 				vlen = pFullBuf->fillLength;
+				PRINTF("--->Ch=%d,IFrame len=%d\n",pFullBuf->channelNum,vlen);
 
 				//read_gaps_in_frame(p, &w, &h, temp_header_length);
 				//				PRINTF("video relusion:%dx%d=====\n", width, height);
@@ -285,9 +286,9 @@ static void *InHostStreamProcess(bits_user_param *param)
 		if(is_send_HIGH == 1) {
 
 			///????
-		//	if(height > 1080) {
-		//		height = 1080;
-		//	}
+			//	if(height > 1080) {
+			//		height = 1080;
+			//	}
 
 			if(mp_status == IS_MP_STATUS) {
 				if(temp_channel == CHANNEL_INPUT_MP) {
@@ -300,11 +301,19 @@ static void *InHostStreamProcess(bits_user_param *param)
 				}
 			} else if(IS_IND_STATUS == mp_status) {
 				if(temp_channel == CHANNEL_INPUT_1) {
+					unsigned int tm_time = getostime();
 					SendDataToClient1(vlen, vdata,
 					                  is_keyframe, 0, width, height);
+					if(getostime()-tm_time > 10){
+						PRINTF("------------1  Send Warning TimeOut!!!\n");
+					}
 				} else if(temp_channel == CHANNEL_INPUT_2) {
+					unsigned int tm_time = getostime();
 					SendDataToClient2(vlen, vdata,
 					                  is_keyframe, 0, width, height);
+					if(getostime()-tm_time > 10){
+						PRINTF("------------2  Send Warning TimeOut!!!\n");
+					}
 				}
 			}
 
@@ -578,8 +587,7 @@ Int32 reach_venc_process(ENC2000_LINK_STRUCT *pstruct, int numInst, int mp_statu
 #endif
 
 #if 0
-EncLink_ChCreateParams ENCLINK_DEFAULTCHCREATEPARAMS_H264 =
-{
+EncLink_ChCreateParams ENCLINK_DEFAULTCHCREATEPARAMS_H264 = {
 	.format = IVIDEO_H264HP,
 	.profile = IH264_HIGH_PROFILE,
 	.dataLayout = IVIDEO_FIELD_SEPARATED,
@@ -632,9 +640,10 @@ Int32 reach_venc_process(ENC2000_LINK_STRUCT *pstruct, int numInst, int mp_statu
 	profile = app_video_get_profile();
 
 	for(queId = 0; queId < encInst; queId++) {
-	//	pEncPrm->chCreateParams[queId] = ENCLINK_DEFAULTCHCREATEPARAMS_H264;
-	//create params
+		//	pEncPrm->chCreateParams[queId] = ENCLINK_DEFAULTCHCREATEPARAMS_H264;
+		//create params
 		{
+			pEncPrm->chCreateParams[queId].encLevel = IH264_LEVEL_51;
 			pEncPrm->chCreateParams[queId].format	= IVIDEO_H264HP;//IVIDEO_H264HP;
 
 			if(1 ==  get_encoding_mode()) {
@@ -645,55 +654,54 @@ Int32 reach_venc_process(ENC2000_LINK_STRUCT *pstruct, int numInst, int mp_statu
 
 			pEncPrm->chCreateParams[queId].dataLayout = IVIDEO_FIELD_SEPARATED;
 			pEncPrm->chCreateParams[queId].fieldMergeEncodeEnable  = FALSE;
-			pEncPrm->chCreateParams[queId].enableAnalyticinfo = FALSE;		
-			pEncPrm->chCreateParams[queId].enableWaterMarking = FALSE;	
-			pEncPrm->chCreateParams[queId].maxBitRate = 2000*1000;
+			pEncPrm->chCreateParams[queId].enableAnalyticinfo = FALSE;
+			pEncPrm->chCreateParams[queId].enableWaterMarking = FALSE;
+			pEncPrm->chCreateParams[queId].maxBitRate = 2000 * 1000;
 
 			//设置编码场景，比如高质量还是高速度，默认中速度中质量
 			pEncPrm->chCreateParams[queId].encodingPreset = XDM_USER_DEFINED;
 			//pEncPrm->chCreateParams[queId].encodingPreset = XDM_DEFAULT;// XDM_DEFAULT;//XDM_PRESET_DEFAULT;// ;
 			//设置码率控制配置，默认使用low delay(CBR)
 			//pEncPrm->chCreateParams[queId].rateControlPreset =IVIDEO_USER_DEFINED;// IVIDEO_LOW_DELAY;//IVIDEO_USER_DEFINED;// IVIDEO_LOW_DELAY;
-		pEncPrm->chCreateParams[queId].rateControlPreset = IVIDEO_USER_DEFINED;
+			pEncPrm->chCreateParams[queId].rateControlPreset = IVIDEO_USER_DEFINED;
 
 			pEncPrm->chCreateParams[queId].enableHighSpeed = 0;
 			pEncPrm->chCreateParams[queId].enableSVCExtensionFlag = 0;
-			pEncPrm->chCreateParams[queId].numTemporalLayer = 1;	
-			
+			pEncPrm->chCreateParams[queId].numTemporalLayer = 1;
+
 			//只有encodingPreset == XDM_USER_DEFINED,下面设置才生效
-			if(pEncPrm->chCreateParams[queId].encodingPreset == XDM_USER_DEFINED)
-			{
+			if(pEncPrm->chCreateParams[queId].encodingPreset == XDM_USER_DEFINED) {
 				pEncPrm->chCreateParams[queId].enableHighSpeed = 0;
 			}
 
 			pEncPrm->chCreateParams[queId].enableSVCExtensionFlag = 0;
-			pEncPrm->chCreateParams[queId].numTemporalLayer = 0;	
+			pEncPrm->chCreateParams[queId].numTemporalLayer = 0;
 		}
 
 		//set default dynamicparams
 		{
-			pEncPrm->chCreateParams[queId].defaultDynamicParams.intraFrameInterval =120;
+			pEncPrm->chCreateParams[queId].defaultDynamicParams.intraFrameInterval = 120;
 			pEncPrm->chCreateParams[queId].defaultDynamicParams.targetBitRate = 2000 * 1000; //video_param.sBitrate*1000;
-			pEncPrm->chCreateParams[queId].defaultDynamicParams.interFrameInterval = 1;	
+			pEncPrm->chCreateParams[queId].defaultDynamicParams.interFrameInterval = 1;
 
-			pEncPrm->chCreateParams[queId].defaultDynamicParams.mvAccuracy =IVIDENC2_MOTIONVECTOR_QUARTERPEL ;//IVIDENC2_MOTIONVECTOR_QUARTERPEL;
+			pEncPrm->chCreateParams[queId].defaultDynamicParams.mvAccuracy = IVIDENC2_MOTIONVECTOR_QUARTERPEL ; //IVIDENC2_MOTIONVECTOR_QUARTERPEL;
 			pEncPrm->chCreateParams[queId].defaultDynamicParams.inputFrameRate = 60;//video_param.nFrameRate;
 
 			//只有IVIDEO_USER_DEFINED才生效
 			//pEncPrm->chCreateParams[queId].defaultDynamicParams.rcAlg= IH264_RATECONTROL_PRC;
-			pEncPrm->chCreateParams[queId].defaultDynamicParams.rcAlg= IH264_RATECONTROL_PRC;
-			
+			pEncPrm->chCreateParams[queId].defaultDynamicParams.rcAlg = IH264_RATECONTROL_PRC;
+
 			/*qpMax与qpMin取值范围(0-51)其值越小视频质量越高但相应码率也会有所提高故其值也不可太小*/
-			pEncPrm->chCreateParams[queId].defaultDynamicParams.qpMin =15;
+			pEncPrm->chCreateParams[queId].defaultDynamicParams.qpMin = 15;
 			pEncPrm->chCreateParams[queId].defaultDynamicParams.qpMax = 48;
 			pEncPrm->chCreateParams[queId].defaultDynamicParams.qpInit = -1;
 
 			pEncPrm->chCreateParams[queId].defaultDynamicParams.vbrDuration = 8;
 			pEncPrm->chCreateParams[queId].defaultDynamicParams.vbrSensitivity = 0;
+
 			//只有IVIDEO_USER_DEFINED才生效
-			if(pEncPrm->chCreateParams[queId].rateControlPreset == IVIDEO_USER_DEFINED)
-			{
-				pEncPrm->chCreateParams[queId].defaultDynamicParams.rcAlg= IH264_RATECONTROL_PRC;
+			if(pEncPrm->chCreateParams[queId].rateControlPreset == IVIDEO_USER_DEFINED) {
+				pEncPrm->chCreateParams[queId].defaultDynamicParams.rcAlg = IH264_RATECONTROL_PRC;
 				//pEncPrm->chCreateParams[queId].defaultDynamicParams.rcAlg=IH264_RATECONTROL_PRC;
 			}
 

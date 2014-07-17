@@ -555,8 +555,8 @@ Int32 write_yuv(UInt32 physaddr, Uint32 framesize, int chid)
 #if 1
 	unsigned char *pY, *pU, *pV;
 	pY = (unsigned char *)pvirtaddr;
-	pU = (unsigned char *)pvirtaddr + 1920 * 1200;
-	pV = (unsigned char *)pvirtaddr + 1920 * 1200 + 1;
+	pV = (unsigned char *)pvirtaddr + 1920 * 1080;
+	pU = (unsigned char *)pvirtaddr + 1920 * 1080 + 1;
 
 	unsigned int vwidth = 1920;
 	unsigned int vheight = 1080;
@@ -596,18 +596,24 @@ static Void *writeyuv_tsk(ENC2000_LINK_STRUCT *pstruct)
 				//		fprintf(stderr, "frameHeight = %d\n", bufList.frames[index].frameHeight);
 
 				if(g_vp0_writeyuv_flag && bufList.frames[index].channelNum == 0) {
+					PRINTF("frameWidth = %d\n", bufList.frames[index].frameWidth);
+					PRINTF("frameHeight = %d\n", bufList.frames[index].frameHeight);
 					g_vp0_writeyuv_flag = 0;
 					framesize = 1920 * 1080 * 2;
 					write_yuv((UInt32)(bufList.frames[index].phyAddr[0][0]), framesize, 0);
 				}
 
 				if(g_vp1_writeyuv_flag && bufList.frames[index].channelNum == 1) {
+					PRINTF("frameWidth = %d\n", bufList.frames[index].frameWidth);
+					PRINTF("frameHeight = %d\n", bufList.frames[index].frameHeight);
 					g_vp1_writeyuv_flag = 0;
 					framesize = 1920 * 1080 * 2;
 					write_yuv((UInt32)(bufList.frames[index].phyAddr[0][0]), framesize, 1);
 				}
 
 				if(g_mp_writeyuv_flag && bufList.frames[index].channelNum == 2) {
+					PRINTF("frameWidth = %d\n", bufList.frames[index].frameWidth);
+					PRINTF("frameHeight = %d\n", bufList.frames[index].frameHeight);
 					g_mp_writeyuv_flag = 0;
 					framesize = 1920 * 1080 * 2;
 					write_yuv((UInt32)(bufList.frames[index].phyAddr[0][0]), framesize, 2);
@@ -656,11 +662,7 @@ Int32 reach_select_process(ENC2000_LINK_STRUCT *pstruct)
 	DupLink_CreateParams            *pDupPrm1;
 	SclrLink_CreateParams           *pSclrPrm1;
 
-#if HAVE_MP_MODULE
-	//	MergeLink_CreateParams			*pMergePrm4;
-	//	SwMsLink_CreateParams           *pSwmsprm;
-	//	SelectLink_CreateParams			*pSelectPrm4;
-#endif
+
 
 #if WRITE_YUV_TASK
 	MergeLink_CreateParams			*pMergePrm4;
@@ -712,36 +714,36 @@ Int32 reach_select_process(ENC2000_LINK_STRUCT *pstruct)
 
 
 #if WRITE_YUV_TASK/* 写YUV */
-	/*
-		pMergePrm4 = &(pstruct->mergeLink[4].create_params);
-		pMergePrm4->numInQue						= 2;
 
-		pMergePrm4->inQueParams[0].prevLinkId	= pstruct->dupLink[0].link_id;
-		pMergePrm4->inQueParams[0].prevLinkQueId	= 2;
-		pMergePrm4->inQueParams[1].prevLinkId	= pstruct->dupLink[1].link_id;
-		pMergePrm4->inQueParams[1].prevLinkQueId	= 2;
-		pMergePrm4->outQueParams.nextLink		= pstruct->ipcFramesOutVpssToHostId;
-		pMergePrm4->notifyNextLink				= TRUE;
+	pMergePrm4 = &(pstruct->mergeLink[4].create_params);
+	pMergePrm4->numInQue						= 2;
 
-		pIpcFramesOutVpssToHostPrm = &(pstruct->ipcFramesOutVpssToHostPrm);
-		pIpcFramesOutVpssToHostPrm->baseCreateParams.noNotifyMode = TRUE;
-		pIpcFramesOutVpssToHostPrm->baseCreateParams.notifyNextLink = FALSE;
-		pIpcFramesOutVpssToHostPrm->baseCreateParams.notifyPrevLink = TRUE;
-		pIpcFramesOutVpssToHostPrm->baseCreateParams.inQueParams.prevLinkId = pstruct->mergeLink[4].link_id;
-		pIpcFramesOutVpssToHostPrm->baseCreateParams.inQueParams.prevLinkQueId = 0;
-		pIpcFramesOutVpssToHostPrm->baseCreateParams.outQueParams[0].nextLink = pstruct->ipcFramesInHostId;
+	pMergePrm4->inQueParams[0].prevLinkId	= pstruct->dupLink[0].link_id;
+	pMergePrm4->inQueParams[0].prevLinkQueId	= 2;
+	pMergePrm4->inQueParams[1].prevLinkId	= pstruct->dupLink[1].link_id;
+	pMergePrm4->inQueParams[1].prevLinkQueId	= 2;
+	pMergePrm4->outQueParams.nextLink		= pstruct->ipcFramesOutVpssToHostId;
+	pMergePrm4->notifyNextLink				= TRUE;
 
-		pIpcFramesInHostPrm = &(pstruct->ipcFramesInHostPrm);
-		pIpcFramesInHostPrm->baseCreateParams.noNotifyMode = TRUE;
-		pIpcFramesInHostPrm->baseCreateParams.notifyNextLink = FALSE;
-		pIpcFramesInHostPrm->baseCreateParams.notifyPrevLink = FALSE;
-		pIpcFramesInHostPrm->baseCreateParams.inQueParams.prevLinkId = pstruct->ipcFramesOutVpssToHostId;
-		pIpcFramesInHostPrm->baseCreateParams.inQueParams.prevLinkQueId = 0;
-		pIpcFramesInHostPrm->baseCreateParams.outQueParams[0].nextLink = SYSTEM_LINK_ID_INVALID;
-		pIpcFramesInHostPrm->exportOnlyPhyAddr = TRUE;
-		pIpcFramesInHostPrm->cbCtx = NULL;
-		pIpcFramesInHostPrm->cbFxn = NULL;
-	*/
+	pIpcFramesOutVpssToHostPrm = &(pstruct->ipcFramesOutVpssToHostPrm);
+	pIpcFramesOutVpssToHostPrm->baseCreateParams.noNotifyMode = TRUE;
+	pIpcFramesOutVpssToHostPrm->baseCreateParams.notifyNextLink = FALSE;
+	pIpcFramesOutVpssToHostPrm->baseCreateParams.notifyPrevLink = TRUE;
+	pIpcFramesOutVpssToHostPrm->baseCreateParams.inQueParams.prevLinkId = pstruct->mergeLink[4].link_id;
+	pIpcFramesOutVpssToHostPrm->baseCreateParams.inQueParams.prevLinkQueId = 0;
+	pIpcFramesOutVpssToHostPrm->baseCreateParams.outQueParams[0].nextLink = pstruct->ipcFramesInHostId;
+
+	pIpcFramesInHostPrm = &(pstruct->ipcFramesInHostPrm);
+	pIpcFramesInHostPrm->baseCreateParams.noNotifyMode = TRUE;
+	pIpcFramesInHostPrm->baseCreateParams.notifyNextLink = FALSE;
+	pIpcFramesInHostPrm->baseCreateParams.notifyPrevLink = FALSE;
+	pIpcFramesInHostPrm->baseCreateParams.inQueParams.prevLinkId = pstruct->ipcFramesOutVpssToHostId;
+	pIpcFramesInHostPrm->baseCreateParams.inQueParams.prevLinkQueId = 0;
+	pIpcFramesInHostPrm->baseCreateParams.outQueParams[0].nextLink = SYSTEM_LINK_ID_INVALID;
+	pIpcFramesInHostPrm->exportOnlyPhyAddr = TRUE;
+	pIpcFramesInHostPrm->cbCtx = NULL;
+	pIpcFramesInHostPrm->cbFxn = NULL;
+
 #endif
 
 	/* MergeLink1合成高低码流 */

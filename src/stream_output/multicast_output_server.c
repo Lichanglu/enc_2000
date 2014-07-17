@@ -183,7 +183,7 @@ static int multicast_list_delete_node(MULTICAST_Output_Server_NODE *node)
 	//close the socket
 	//	multicast_client_delete(&(node->client[0]));
 	stream_client_close(node->client);
-	node->client=NULL;
+	node->client = NULL;
 	//close tc num
 	tc_del_element(node->tc_num);
 	node->tc_num = -1;

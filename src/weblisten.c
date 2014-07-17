@@ -585,6 +585,7 @@ int midParseInt(int identifier, int fd, char *data, int len)
 		case MSG_SETCBCR: {
 			PRINTF("--MSG_SETCBCR--\n");
 			app_web_set_CbCr(channel);
+			break;
 		}
 
 		default:

@@ -215,7 +215,7 @@ typedef struct __HDB_FRAME_HEAD {
 	DWORD dwFlags;							//视频:  I 帧标志
 	//音频:  保留
 	DWORD dwPacketNumber; 					//包序号
-	DWORD nOthers;      					//保留
+	DWORD nOthers;      					//silverlight 配合 aac-he=0 aac-lc=1
 } FRAMEHEAD;
 
 //#########################encodemange end######################################

@@ -27,6 +27,7 @@ Other Description:	Control Camera	for com port
 #include "remotectrl.h"
 #include "log_common.h"
 #include "rwini.h"
+#include "new_tcp_com.h"
 /*remote config File */
 int gRemoteFD[REMOTE_INDEX_SUM] = { -1, -1, -1, -1};
 static RemoteConfig gRemote[REMOTE_INDEX_SUM];
@@ -1946,7 +1947,7 @@ Speed
 10          HIGH
 
  */
-void FarCtrlCamera(int dsp, unsigned char *data, int len, int index)
+void FarCtrlCamera(int index, unsigned char *data, int len, int dsp)
 {
 	int type, speed;
 	int fd;
@@ -1966,7 +1967,7 @@ void FarCtrlCamera(int dsp, unsigned char *data, int len, int index)
 		caddr = 1;
 	}
 
-	PRINTF("***index:[%d] type:%d  speed:%d  len:%d,fd:%d ***\n", index, type, speed, len, gRemoteFD[index]);
+	PRINTF("***index:[%d] type:%d  speed:%d  len:%d,caddr	=%d,fd:%d ***\n", index, type, speed, len,caddr, gRemoteFD[index]);
 
 	if(gRemoteFD[index] <= 0) {
 		ERR_PRN("Remote Port Open Failed\n");

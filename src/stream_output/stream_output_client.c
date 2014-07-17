@@ -185,7 +185,7 @@ int stream_client_close(Stream_Output_Client *client)
 		return -1;
 	}
 
-	if(client->c_used != NOTUSED){
+	if(client->c_used != NOTUSED) {
 		mult_set_active(client->type, -1, client->stream_channel);
 	}
 

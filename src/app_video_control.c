@@ -571,7 +571,8 @@ int app_get_scale_status(int channel, int *scale, int *width, int *height)
 	channel_get_input_info(channel, &input, &high_stream);
 
 	if(high_stream == HIGH_STREAM) {
-		if(info->quality_lock_flag == LOCK_SCALE || info->record_lock_flag == LOCK_SCALE || info->web_lock_flag == LOCK_SCALE) {
+		if(info->quality_lock_flag == LOCK_SCALE || info->record_lock_flag == LOCK_SCALE
+		   || info->web_lock_flag == LOCK_SCALE || info->xml_record_lock_flag > 0) {
 			*scale = LOCK_SCALE;
 
 			if(info->outwidth < 352 || info->outheight < 288) {
@@ -638,6 +639,93 @@ static void app_video_control()
 
 }
 
+
+//a) 录制锁定分辨率。输入0/1，锁定到当前编码的宽高
+//一旦用户发出锁定分辨率的消息，默认就锁定当前的编码的宽高，不管是否处于WEB或者质量锁定的状态
+int XML_recode_lock_set(int channel, int islock)
+{
+	CHECK(channel);
+
+	VideoScaleInfo *info = NULL;
+	int input , high_stream;
+	int width, height;
+	int mp_status = get_mp_status();
+	int ret = 0;
+
+	int need_lock = UNLOCK_SCALE;
+	width = height = input = high_stream = -1;
+	channel_get_input_info(channel, &input, &high_stream);
+
+	if(high_stream == LOW_STREAM) {
+		ERR_PRN("the %d channel is low stream ,not have this set\n", channel);
+		return -1;
+	}
+
+	mid_mutex_lock(g_video_control_handle->smutex[channel]);
+	info = &(g_video_control_handle->sinfo[channel]);
+
+
+	if(mp_status == IS_IND_STATUS) {
+		capture_get_input_hw(input, &width, &height);
+
+		if(height == 540 && width == 1920) {
+			height = height * 2;
+		}
+	} else {
+		app_get_original_resolution(&width, &height);
+
+	}
+
+	if(islock == LOCK_SCALE) {
+		info->xml_record_lock_flag += 1;
+
+		//处于锁定状态，继续锁定,小流逻辑不走入这个
+		if(info->quality_lock_flag == LOCK_SCALE || info->record_lock_flag == LOCK_SCALE
+		   || info->web_lock_flag == LOCK_SCALE) {
+			PRINTF("the %d channel is already lock scale\n", channel);
+			//info->record_lock_flag = LOCK_SCALE;
+			need_lock = LOCK_SCALE;
+		} else { //开始进入锁定状态
+
+			info->outwidth = width;
+			info->outheight = height;
+			PRINTF("the %d channel is begin to scale to %d x %d\n", channel, width, height);
+			need_lock = LOCK_SCALE;
+		}
+	} else if(islock == UNLOCK_SCALE) {
+		info->xml_record_lock_flag -= 1;
+
+		//解锁只解锁record lock,不解锁其他操作
+		if(info->quality_lock_flag == LOCK_SCALE || info->web_lock_flag == LOCK_SCALE
+		   || info->record_lock_flag || info->xml_record_lock_flag > 0) {
+			PRINTF("the %d channel is already lock scale\n", channel);
+
+			need_lock = LOCK_SCALE;
+		} else { //不需要任何锁定
+			info->outwidth = width;
+			info->outheight = height;
+			PRINTF("the %d channel is begin to unlock to %d x %d\n", channel, width, height);
+			need_lock = UNLOCK_SCALE;
+		}
+	}
+
+	//set scale
+	PRINTF("the %d channel is lock scale ,from %d x %d to scale widht=%d,hight=%d\n", channel, width, height, info->outwidth, info->outheight);
+
+	if(mp_status == IS_IND_STATUS) {
+		set_resolution(input, high_stream, info->outwidth, info->outheight, width, height);
+	} else if(IS_MP_STATUS == mp_status) {
+		mp_set_resolution(input, high_stream, info->outwidth, info->outheight, width, height);
+	}
+
+XML_LOCK:
+
+	mid_mutex_unlock(g_video_control_handle->smutex[channel]);
+
+	return ret;
+}
+
+
 //a) 录制锁定分辨率。输入0/1，锁定到当前编码的宽高
 //一旦用户发出锁定分辨率的消息，默认就锁定当前的编码的宽高，不管是否处于WEB或者质量锁定的状态
 int MMP_recode_lock_set(int channel, int islock)
@@ -662,15 +750,6 @@ int MMP_recode_lock_set(int channel, int islock)
 	mid_mutex_lock(g_video_control_handle->smutex[channel]);
 	info = &(g_video_control_handle->sinfo[channel]);
 
-#ifdef HAVE_IP_XML
-
-	if(info->ip_xml_lock_flag > 0) {
-		PRINTF("IP XML locking,This will return!\n");
-		ret = IP_XML_LOCK_SCALE;
-		goto XML_LOCK;
-	}
-
-#endif
 
 	if(mp_status == IS_IND_STATUS) {
 		capture_get_input_hw(input, &width, &height);
@@ -688,7 +767,7 @@ int MMP_recode_lock_set(int channel, int islock)
 
 		//处于锁定状态，继续锁定,小流逻辑不走入这个
 		if(info->quality_lock_flag == LOCK_SCALE || info->record_lock_flag == LOCK_SCALE
-		   || info->web_lock_flag == LOCK_SCALE) {
+		   || info->web_lock_flag == LOCK_SCALE || info->xml_record_lock_flag > 0) {
 			PRINTF("the %d channel is already lock scale\n", channel);
 			//info->record_lock_flag = LOCK_SCALE;
 			need_lock = LOCK_SCALE;
@@ -703,7 +782,8 @@ int MMP_recode_lock_set(int channel, int islock)
 		info->record_lock_flag = UNLOCK_SCALE;
 
 		//解锁只解锁record lock,不解锁其他操作
-		if(info->quality_lock_flag == LOCK_SCALE || info->web_lock_flag == LOCK_SCALE) {
+		if(info->quality_lock_flag == LOCK_SCALE || info->web_lock_flag == LOCK_SCALE
+		   || info->xml_record_lock_flag > 0) {
 			PRINTF("the %d channel is already lock scale\n", channel);
 
 			need_lock = LOCK_SCALE;
@@ -760,15 +840,6 @@ int MMP_quailty_lock_set(int channel, int qulity, int outwidth, int outheight)
 	mid_mutex_lock(g_video_control_handle->smutex[channel]);
 	info = &(g_video_control_handle->sinfo[channel]);
 
-#ifdef HAVE_IP_XML
-
-	if(info->ip_xml_lock_flag > 0) {
-		PRINTF("IP XML locking,This will return!\n");
-		ret = IP_XML_LOCK_SCALE;
-		goto XML_LOCK;
-	}
-
-#endif
 
 	if(mp_status == IS_IND_STATUS) {
 		capture_get_input_hw(input, &width, &height);
@@ -788,7 +859,7 @@ int MMP_quailty_lock_set(int channel, int qulity, int outwidth, int outheight)
 
 	if(islock == LOCK_SCALE) {
 		//处于锁定状态，继续锁定,小流逻辑不走入这个
-		if(info->record_lock_flag == LOCK_SCALE) {
+		if(info->record_lock_flag == LOCK_SCALE || info->xml_record_lock_flag > 0) {
 			ret = -1;
 			PRINTF("Warnning,the record lock is lock ,will return \n");
 		} else {
@@ -802,7 +873,8 @@ int MMP_quailty_lock_set(int channel, int qulity, int outwidth, int outheight)
 		info->quality_lock_flag = UNLOCK_SCALE;
 
 		//解锁只解锁record lock,不解锁其他操作
-		if(info->record_lock_flag == LOCK_SCALE || info->web_lock_flag == LOCK_SCALE) {
+		if(info->record_lock_flag == LOCK_SCALE || info->web_lock_flag == LOCK_SCALE
+		   || info->xml_record_lock_flag > 0) {
 			PRINTF("the %d channel is already lock scale\n", channel);
 
 			//	need_lock = LOCK_SCALE;
@@ -955,16 +1027,6 @@ int web_scale_lock_set(int channel, int outwidth, int outheight, int scalemode)
 	mid_mutex_lock(g_video_control_handle->smutex[channel]);
 	info = &(g_video_control_handle->sinfo[channel]);
 
-#ifdef HAVE_IP_XML
-
-	if(info->ip_xml_lock_flag > 0) {
-		PRINTF("IP XML locking,This will return!\n");
-		ret = 2;
-		goto XML_LOCK;
-
-	}
-
-#endif
 	memcpy(&oldinfo, info, sizeof(VideoScaleInfo));
 
 	if(mp_status == IS_IND_STATUS) {
@@ -985,7 +1047,8 @@ int web_scale_lock_set(int channel, int outwidth, int outheight, int scalemode)
 
 	if(islock == LOCK_SCALE) {
 		//处于锁定状态，继续锁定,小流逻辑不走入这个
-		if(info->record_lock_flag == LOCK_SCALE || info->quality_lock_flag == LOCK_SCALE) {
+		if(info->record_lock_flag == LOCK_SCALE || info->quality_lock_flag == LOCK_SCALE
+		   || info->xml_record_lock_flag > 0) {
 			ret = 2;//-2 服务器锁定消息
 			PRINTF("Warnning,the record lock is lock ,will return \n");
 		} else {
@@ -1000,7 +1063,8 @@ int web_scale_lock_set(int channel, int outwidth, int outheight, int scalemode)
 		info->web_lock_flag = UNLOCK_SCALE;
 
 		//解锁只解锁record lock,不解锁其他操作
-		if(info->record_lock_flag == LOCK_SCALE || info->quality_lock_flag == LOCK_SCALE) {
+		if(info->record_lock_flag == LOCK_SCALE || info->quality_lock_flag == LOCK_SCALE
+		   || info->xml_record_lock_flag > 0) {
 			PRINTF("the %d channel is already lock scale\n", channel);
 
 			//	need_lock = LOCK_SCALE;
@@ -1059,135 +1123,6 @@ int web_scale_lock_get(int channel, int *width, int *height, int *scalemode)
 	mid_mutex_unlock(g_video_control_handle->smutex[channel]);
 	return 0;
 }
-#ifdef HAVE_IP_XML
-int g_bak_resolution = 0;
-
-int ip_xml_scale_lock_get(int channel, MMPVideoParam *vparam)
-{
-
-	CHECK(channel);
-	VideoEnodeInfo *info = NULL;
-	int width = 0, height = 0;
-	Uint32 input = 0, high = 0;
-	int mp_status = get_mp_status();
-	channel_get_input_info(channel, &input, &high);
-
-	if(IS_IND_STATUS == mp_status) {
-		capture_get_input_hw(input, &width, &height);
-	} else if(IS_MP_STATUS == mp_status) {
-		app_get_original_resolution(&width, &height);
-	}
-
-	mid_mutex_lock(g_video_control_handle->mutex[channel]);
-	info = &(g_video_control_handle->info[channel]);
-	vparam->nDataCodec = info->ndatacodec;
-	vparam->nFrameRate = info->framerate;
-	vparam->nWidth = width;
-	vparam->nHight = height;
-	vparam->nColors = info->ncolors;
-	vparam->nQuality = info->quality;
-	vparam->sCbr = info->scbr;
-	vparam->sBitrate = info->bitrate;
-	mid_mutex_unlock(g_video_control_handle->mutex[channel]);
-}
-
-int ip_xml_scale_lock_set(int channel, int scalemode)
-{
-
-	CHECK(channel);
-	VideoScaleInfo *info = NULL;
-	VideoScaleInfo oldinfo;
-	int high, input;
-	int width = 0, height = 0;
-
-	int mp_status  = get_mp_status();
-	int ret = 0;
-	int islock = LOCK_SCALE;
-	int change = 1;
-	channel_get_input_info(channel, &input, &high);
-
-	if(LOCK_SCALE == scalemode) {
-		PRINTF("the %d channel,web will need lock\n", channel);
-	}
-
-	//mp -> input1
-	if(IS_MP_STATUS == mp_status) {
-		app_get_original_resolution(&width, &height);
-	} else if(IS_IND_STATUS == mp_status) {
-		// set source res
-		capture_get_input_hw(input, &width, &height);
-	}
-
-	memset(&oldinfo, 0, sizeof(VideoScaleInfo));
-
-	//web 不支持小流设置
-	if(LOW_STREAM == high) {
-		ERR_PRN("the %d channel is low stream ,not have this set\n", channel);
-		return -1;
-	}
-
-	mid_mutex_lock(g_video_control_handle->smutex[channel]);
-	info = &(g_video_control_handle->sinfo[channel]);
-	memcpy(&oldinfo, info, sizeof(VideoScaleInfo));
-
-	//need lock
-	if(LOCK_SCALE == scalemode) {
-		//忽略低级别锁定
-		if(info->record_lock_flag == LOCK_SCALE
-		   || info->quality_lock_flag == LOCK_SCALE
-		   || info->web_lock_flag == LOCK_SCALE) {
-			PRINTF("Warnning,the record_lock=%d,quality_lock=%d,web_lock=%d ,will return \n",
-			       info->record_lock_flag, info->quality_lock_flag,
-			       info->web_lock_flag);
-		}
-
-		info->outwidth = width;
-		info->outheight = height;
-		PRINTF("the %d channel is begin to scale to %d x %d\n", channel, info->outwidth, info->outheight);
-		info->ip_xml_lock_flag += LOCK_SCALE;//add lock scale
-
-		//set res
-		if(IS_IND_STATUS == mp_status) {
-			set_resolution(input, high, info->outwidth, info->outheight, width, height);
-		} else if(IS_MP_STATUS == mp_status) {
-			mp_set_resolution(input, high, info->outwidth, info->outheight, width, height);
-		}
-
-	} else if(scalemode == UNLOCK_SCALE) {
-		if(0 == info->ip_xml_lock_flag) {
-			PRINTF("WARNING: ip_xml_lock_flag =%d\n", info->ip_xml_lock_flag);
-		} else if(info->ip_xml_lock_flag > 0) {
-			info->ip_xml_lock_flag -= LOCK_SCALE;//sub lock scale
-		}
-
-		//解锁record quality lock
-		if(info->record_lock_flag == LOCK_SCALE
-		   || info->quality_lock_flag == LOCK_SCALE) {
-			PRINTF("Warnning,the record_lock=%d,quality_lock=%d will return \n",
-			       info->record_lock_flag, info->quality_lock_flag);
-			info->record_lock_flag = UNLOCK_SCALE;
-			info->quality_lock_flag = UNLOCK_SCALE;
-		}
-
-		if(info->web_lock_flag == LOCK_SCALE && g_bak_resolution != LOCK_AUTO) {
-			WebScaleInfo in, out;
-			int in_width = 0, in_height = 0;
-			resolution_to_width(g_bak_resolution , &in_width, &in_height);
-			in.outheight = in_height;
-			in.outwidth = in_width;
-			in.scalemode = g_bak_resolution;
-			in.scalemode = info->scalemode;
-			app_web_set_scaleinfo(channel, &in, &out);
-		}
-	}
-
-	mid_mutex_unlock(g_video_control_handle->smutex[channel]);
-	PRINTF("mp_status=%d,input=%d\n", mp_status, input);
-	PRINTF("the %d channel input =%d,is lock scale ,from %d x %d to scale widht=%d,hight=%d\n", channel, input, width, height, info->outwidth, info->outheight);
-	return 0;
-}
-
-#endif
 static int read_video_global_param(xmlDocPtr pdoc, xmlNodePtr pnode, int *hp)
 {
 	char temp[XML_TEXT_MAX_LENGTH] = {0};

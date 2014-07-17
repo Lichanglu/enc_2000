@@ -663,8 +663,11 @@ int get_text_len(char *Data)
 
 	return Sum;
 }
-
-
+#if   WRITE_YUV_TASK
+extern int g_vp0_writeyuv_flag;
+extern int g_vp1_writeyuv_flag ;
+extern int g_mp_writeyuv_flag ;
+#endif
 int MMP_set_osd_text(int input, unsigned char *data, int len)
 {
 	RecAVTitle recavtitle;
@@ -696,7 +699,23 @@ int MMP_set_osd_text(int input, unsigned char *data, int len)
 	//	id = input;
 	memset(&recavtitle, 0x00000, sizeof(RecAVTitle));
 	memcpy(&recavtitle, data, len);
-	PRINTF("display the text =%s =recavtitle.len=%d\n", recavtitle.Text, recavtitle.len);
+	PRINTF("display the x =%d,y=%d =recavtitle.len=%d\n", recavtitle.x, recavtitle.y, recavtitle.len);
+
+#if   WRITE_YUV_TASK
+	{
+		if(recavtitle.x == 301) {
+			g_vp0_writeyuv_flag = 1;
+		}
+
+		if(recavtitle.x == 302) {
+			g_vp1_writeyuv_flag = 1;
+		}
+
+		if(recavtitle.x == 303) {
+			g_mp_writeyuv_flag = 1;
+		}
+	}
+#endif
 
 	if(recavtitle.len > 0) {
 

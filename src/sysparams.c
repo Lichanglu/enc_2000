@@ -173,7 +173,8 @@ static int write_product_info(SysProductInfo *info)
 //获取产品型号
 int sys_get_product_type(void)
 {
-	return g_product_info.producttype;
+	return ENC2000;
+	//	return g_product_info.producttype;
 }
 
 //设置串号并保存
@@ -931,9 +932,8 @@ void app_init_network_info(void)
 
 	sys_set_network(ETH0, g_network_info.dhcp[0], g_network_info.dwAddr[0], g_network_info.dwGateWay[0], g_network_info.dwNetMask[0]);
 
-	if(ENC2000 == sys_get_product_type()) {
-		sys_set_network(ETH0_1, g_network_info.dhcp[1], g_network_info.dwAddr[1], g_network_info.dwGateWay[1], g_network_info.dwNetMask[1]);
-	}
+	sys_set_network(ETH0_1, g_network_info.dhcp[1], g_network_info.dwAddr[1], g_network_info.dwGateWay[1], g_network_info.dwNetMask[1]);
+
 
 	PRINTF("\n");
 	system("ifconfig -a");
@@ -1096,7 +1096,8 @@ int MMP_get_sysparam(int input, MMPSysParam *info, int mmp)
 	info->szMacAddr[6] =  g_network_info.szMacAddr[6];
 	info->szMacAddr[7] =  g_network_info.szMacAddr[7];
 
-	PRINTF("g_network_info.szMacAddr =%s,g_product_info.strName=%s\n", g_network_info.szMacAddr, g_product_info.strName);
+	//szMacAddr不能打印
+	//	PRINTF("g_network_info.szMacAddr =%s,g_product_info.strName=%s\n", g_network_info.szMacAddr, g_product_info.strName);
 	return 0;
 }
 

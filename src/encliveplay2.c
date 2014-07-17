@@ -71,8 +71,8 @@ static void PackHeaderMSG(BYTE *data, BYTE type, WORD len);
 static int GetNullClientData(unsigned char dsp);
 static void ClearLostClient(unsigned char dsp);
 static void SetAudioHeader(FRAMEHEAD *pAudio, AudioEncodeParam *pSys);
-static int app_mmp_ainfo_get(int socket, int, int chid, unsigned char *data);
-static int app_mmp_ainfo_set(int chid, int input , unsigned char *data);
+static int app_mmp_ainfo_get(int socket, int input, unsigned char *data);
+static int app_mmp_ainfo_set(int input , unsigned char *data);
 static int app_mmp_vinfo_get(int socket, int chid, unsigned char *data);
 static int app_mmp_vinfo_set(int chid, unsigned char *data);
 static int app_mmp_sysinfo_get(int socket, int input, unsigned char *data, int mmp);
@@ -202,31 +202,32 @@ static void SetAudioHeader(FRAMEHEAD *pAudio, AudioEncodeParam *pSys)
 }
 
 //get mmp audio info
-static int app_mmp_ainfo_get(int socket, int audio_input, int chid, unsigned char *data)
+static int app_mmp_ainfo_get(int socket, int input, unsigned char *data)
 {
 	int length = 0, ret;
 	MMPAudioParam audio_param;
-	int input = SIGNAL_INPUT_1;
-	int high = HIGH_STREAM;
-	int mp_status = get_mp_status();
+	//	int input = SIGNAL_INPUT_1;
+	//	int high = HIGH_STREAM;
+	/*
+		int mp_status = get_mp_status();
 
-	if(chid < 0 || chid > CHANNEL_INPUT_MAX) {
-		fprintf(stderr, "msg_get_audio_param failed, chid error, %d\n", chid);
-		return -1;
-	}
+		if(chid < 0 || chid > CHANNEL_INPUT_MAX) {
+			fprintf(stderr, "msg_get_audio_param failed, chid error, %d\n", chid);
+			return -1;
+		}
 
-	if(mp_status == IS_MP_STATUS) {
-		input_get_audio_input(audio_input, &input);
-	} else if(mp_status == IS_IND_STATUS) {
-		channel_get_input_info(chid, &input, &high);
-	}
-
+		if(mp_status == IS_MP_STATUS) {
+			input_get_audio_input(audio_input, &input);
+		} else if(mp_status == IS_IND_STATUS) {
+			channel_get_input_info(chid, &input, &high);
+		}
+	*/
 	memset(&audio_param, 0, sizeof(MMPAudioParam));
 
 	length = HEAD_LEN + sizeof(MMPAudioParam);
 	PackHeaderMSG(data, MSG_GET_AUDIOPARAM, length);
 
-	channel_get_input_info(chid, &input, &high);
+	//	channel_get_input_info(chid, &input, &high);
 
 	ret = MMP_audio_info_get(input, &audio_param);
 
@@ -247,34 +248,36 @@ static int app_mmp_ainfo_get(int socket, int audio_input, int chid, unsigned cha
 }
 
 //set mmp audio info
-static int app_mmp_ainfo_set(int chid, int audio_input, unsigned char *data)
+static int app_mmp_ainfo_set(int input, unsigned char *data)
 {
 	MMPAudioParam *pnew_param;
 	MMPAudioParam old_param;
 	int ret = 0;
 	int change = 0;
-	int input = SIGNAL_INPUT_1;
-	int high = HIGH_STREAM;
-	int mp_status = get_mp_status();
+	//	int input = SIGNAL_INPUT_1;
+	//	int high = HIGH_STREAM;
 
-	if(chid < 0 || chid > MAX_CHANNEL) {
-		ERR_PRN("msg_set_video_param failed, chid error, %d\n", chid);
-		return -1;
-	}
+	/*
+		int mp_status = get_mp_status();
 
+		if(chid < 0 || chid > MAX_CHANNEL) {
+			ERR_PRN("msg_set_video_param failed, chid error, %d\n", chid);
+			return -1;
+		}
+	*/
 	if(NULL == data) {
 		ERR_PRN("msg_set_video_param, params error!\n");
 		return -1;
 	}
 
 	pnew_param = (MMPAudioParam *)data;
-
-	if(mp_status == IS_MP_STATUS) {
-		input_get_audio_input(audio_input, &input);
-	} else if(mp_status == IS_IND_STATUS) {
-		channel_get_input_info(chid, &input, &high);
-	}
-
+	/*
+		if(mp_status == IS_MP_STATUS) {
+			input_get_audio_input(audio_input, &input);
+		} else if(mp_status == IS_IND_STATUS) {
+			channel_get_input_info(chid, &input, &high);
+		}
+	*/
 	ret =  mmp_set_audio_info(input, pnew_param, &change);
 
 	if(ret < 0) {
@@ -794,12 +797,12 @@ static void EncoderProcess(void *pParams)
 
 			case MSG_GET_AUDIOPARAM:
 				PRINTF("MSG_GET_AUDIOPARAM\n");
-				app_mmp_ainfo_get(sSocket, input, channel, (BYTE *)&szData[HEAD_LEN]);
+				app_mmp_ainfo_get(sSocket, input, (BYTE *)&szData[HEAD_LEN]);
 				break;
 
 			case MSG_SET_AUDIOPARAM:
 				PRINTF("MSG_SET_AUDIOPARAM\n");
-				app_mmp_ainfo_set(channel, input, (BYTE *)&szData[HEAD_LEN]);
+				app_mmp_ainfo_set(input, (BYTE *)&szData[HEAD_LEN]);
 				break;
 
 			case MSG_GET_VIDEOPARAM:
@@ -1041,6 +1044,7 @@ static void EncoderProcess(void *pParams)
 				break;
 
 			case MSG_MUTE:
+				MMP_audio_set_mute(input, (BYTE *)&szData[HEAD_LEN]);
 				PRINTF("MSG_MUTE\n");
 				break;
 
@@ -1440,7 +1444,7 @@ void SendAudioToClient2(int nLen, unsigned char *pData,
 	//printf("audio[2]:[%I64d]\n", timeTick);
 	web_get_audio_info(MMP_IND_INPUT, &aparam);
 	SetAudioHeader(&DataFrame,  &aparam);
-
+	DataFrame.nOthers = 1; //AAC-LC
 
 	if(nFlag == 1) {
 		DataFrame.dwFlags = AVIIF_KEYFRAME;
@@ -1479,6 +1483,9 @@ void SendAudioToClient2(int nLen, unsigned char *pData,
 		memset(p, 0, HEAD_LEN);
 		p->nLen = htons((nSendLen + sizeof(FRAMEHEAD) + HEAD_LEN));
 		p->nMsg = MSG_AUDIODATA;
+#ifdef SUPPORT_XML_PROTOCOL
+		p->nVer = htons(2012);
+#endif
 
 
 		for(cnt = 0; cnt < MAX_CLIENT; cnt++) {
@@ -1495,7 +1502,7 @@ void SendAudioToClient2(int nLen, unsigned char *pData,
 		}
 
 #ifdef SUPPORT_IP_MATRIX
-		SendAudioDataToIpMatrixClient(1, gszAudioBuf, nSendLen + sizeof(FRAMEHEAD) + HEAD_LEN);
+		//SendAudioDataToIpMatrixClient(1, gszAudioBuf, nSendLen + sizeof(FRAMEHEAD) + HEAD_LEN);
 #endif
 		nSent += nSendLen;
 	}
@@ -1543,6 +1550,7 @@ void LowSendAudioToClient2(int nLen, unsigned char *pData,
 
 	web_get_audio_info(MMP_IND_INPUT, &aparam);
 	SetAudioHeader(&DataFrame,  &aparam);
+	DataFrame.nOthers = 1; //AAC-LC
 
 
 	if(nFlag == 1) {
@@ -1686,7 +1694,10 @@ void SendDataToClient2(int nLen, unsigned char *pData,
 		memset(p, 0, HEAD_LEN);
 		p->nLen = htons((nSendLen + sizeof(FRAMEHEAD) + HEAD_LEN));
 		p->nMsg = MSG_SCREENDATA;
-
+#ifdef SUPPORT_XML_PROTOCOL
+		p->nVer = htons(2012);
+#endif
+#if 1
 		//send multi client
 		for(cnt = 0; cnt < MAX_CLIENT; cnt++) {
 			if(ISUSED(0, cnt) && ISLOGIN(0, cnt) && (GETLOWRATEFLAG(0, cnt) != LOW_VIDEO_START)) {
@@ -1705,9 +1716,10 @@ void SendDataToClient2(int nLen, unsigned char *pData,
 			}
 
 		}
+#endif
 
 #ifdef SUPPORT_IP_MATRIX
-		SendVideoDataToIpMatrixClient(1, gszSendBuf, nSendLen + sizeof(FRAMEHEAD) + HEAD_LEN);
+		SendVideoDataToIpMatrixClient(SIGNAL_INPUT_2, gszSendBuf, nSendLen + sizeof(FRAMEHEAD) + HEAD_LEN);
 #endif
 		nSent += nSendLen;
 	}

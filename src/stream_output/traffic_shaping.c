@@ -147,8 +147,7 @@ int tc_del_element(int classid)
 		return -1;
 	}
 
-	if( classid < 0)
-	{
+	if(classid < 0) {
 		PRINTF("Error\n");
 		return -1;
 	}

@@ -251,6 +251,7 @@ int write_yuv_420(unsigned char *py, unsigned char *pu, unsigned char *pv,
 		sprintf(buf, "picture_yuv420_mp_%d.yuv", time2++);
 	}
 
+	PRINTF("buf = %s\n", buf);
 
 	FILE *fp = fopen(buf, "w+");
 

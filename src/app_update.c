@@ -150,6 +150,7 @@ static int get_gpio_bit(int bit, int fd)
 /*升级FPGA程序*/
 static int updateFpgaProgram(const char *fpgafile, int fd)
 {
+	int r_cnt1 = 0, r_cnt2 = 0;
 	int ret = 0;
 	char spidata[PER_READ_LEN];
 	int spifd = -1;
@@ -159,13 +160,31 @@ static int updateFpgaProgram(const char *fpgafile, int fd)
 	int totalwritelen  = 0;
 
 	PRINTF("Enter into update FPGA Program \n");
-
-	//	ret = set_gpio_bit(41, fd); //写保护
-
 	ret = clear_gpio_bit(FLASH_ENABLE, fd);
 	PRINTF("FLASH_ENABLE ret=%x \n", ret);
 
-	system("flash_eraseall /dev/mtd0");
+	clear_gpio_bit(FPGA_PRO, fd);
+
+	while(1) {
+		usleep(100);
+		ret = get_gpio_bit(FPGA_DONE, fd);
+
+		if(ret != 0) {
+			PRINTF("fpga Done is Not 0!\n");
+		} else {
+			PRINTF("fpga Done is 0!\n");
+			break;
+		}
+
+		r_cnt1++;
+
+		if(r_cnt1 > 10) {
+			break;
+		}
+	}
+
+	ret = system("flash_eraseall /dev/mtd0");
+	PRINTF(" flash_eraseall /dev/mtd0 ret=%x \n", ret);
 	spifd =  open("/dev/mtd0", O_RDWR, 0);
 
 	if(spifd < 0)	{
@@ -185,7 +204,6 @@ static int updateFpgaProgram(const char *fpgafile, int fd)
 	rewind(fpgafd);
 
 	while(1) {
-		writeWatchDog();
 		readlen = fread(spidata, 1, PER_READ_LEN, fpgafd);
 
 		if(readlen < 1)	{
@@ -220,16 +238,29 @@ cleanup:
 		fclose(fpgafd);
 	}
 
-	ret = get_gpio_bit(FPGA_DONE, fd);
+	ret = set_gpio_bit(FPGA_PRO, fd);
+	usleep(300);
 
-	while(!ret) {
+	while(1) {
 		ret = get_gpio_bit(FPGA_DONE, fd);
+
+		if(ret == 0) {//正在写，允许写3s
+			r_cnt1++;
+			r_cnt2 = 0;
+		} else if(1 ==  ret) { //写完成，确保5次
+			r_cnt2++;
+			r_cnt1 = 0;
+		} else {
+			break;
+		}
+
+		if(r_cnt1 > 10 || r_cnt2 > 5) {
+			break;
+		}
+
+		usleep(300);
 	}
 
-	ret = clear_gpio_bit(FPGA_PRO, fd);
-	ret = set_gpio_bit(FPGA_PRO, fd);
-	PRINTF("FPGA_PRO ret2=%x \n", ret);
-	PRINTF("gpio done   bit = %d\n", ret);
 	return ret;
 }
 

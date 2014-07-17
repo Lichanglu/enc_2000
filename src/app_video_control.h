@@ -39,9 +39,7 @@ typedef struct __VIDEOSCALEINFO {
 	int record_lock_flag;      //  0 不处于录制锁定模式  1 处于录制锁定模式
 	int web_lock_flag ;        // 0  不处于web锁定模式  1 处于录制锁定模式
 	int low_lock_flag ;        // 0 不处于小流缩放模式  1 处于小流缩放模式
-#ifdef HAVE_IP_XML
-	int ip_xml_lock_flag;     // 0  不锁定，1锁定
-#endif
+	int xml_record_lock_flag;
 	int outwidth ;     			//输出宽
 	int outheight ;     			//输出高
 	int scalemode ;   			 //0 -- 1缩放模式

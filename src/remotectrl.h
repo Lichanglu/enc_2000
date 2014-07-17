@@ -11,6 +11,7 @@
 #ifndef __REMOTECTRL__
 #define __REMOTECTRL__
 #include "common.h"
+#include "new_tcp_com.h"
 #define REMOTE_COM				0
 #define SLID_MAX_NUM  			11
 #define ADDR_MAX_NUM			101   //struct __ADDRESS__  default addr 1-100
@@ -98,7 +99,7 @@ typedef struct __REMOTE_CONFIG__ {
 	COMPARAM comm;
 } RemoteConfig;
 
-typedef struct REMOTE_INFO
+typedef struct _REMOTE_INFO_
 {
 	int type;
 	int speed;

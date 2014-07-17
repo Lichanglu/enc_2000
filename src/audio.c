@@ -297,14 +297,14 @@ static void *AudioBitsDataOutProcess(audio_struct *audioinst)
 
 		if(1 == audio_change) {
 			if(IS_MP_STATUS == get_mp_status()) {
-				web_get_audio_info(SIGNAL_INPUT_MP,&temp_param);
-				input_set_audio_input( temp_param.mp_input);
-//				PRINTF("mp_input=%d\n",temp_param.mp_input);
-//				input_get_audio_input(SIGNAL_INPUT_MP, &mp_audio_input);
+				web_get_audio_info(SIGNAL_INPUT_MP, &temp_param);
+				input_set_audio_input(temp_param.mp_input);
+				//				PRINTF("mp_input=%d\n",temp_param.mp_input);
+				//				input_get_audio_input(SIGNAL_INPUT_MP, &mp_audio_input);
 				audio_update_config(SIGNAL_INPUT_MP, temp_param.mp_input);
 			} else if(IS_IND_STATUS == get_mp_status()) {
 				audio_update_config(SIGNAL_INPUT_1, AUDIO_LINEIN_1);
-				sleep(1);
+				//sleep(1);
 				audio_update_config(SIGNAL_INPUT_2, AUDIO_LINEIN_2);
 			}
 
@@ -589,13 +589,13 @@ static Int32 adjust_volume(int num, int LVolume, int RVolume)
 		card = 0;
 	}
 
-	char cmd[256] = {0};	
-	snprintf(cmd,sizeof(cmd), "amixer -c %d cset numid=5,iface=MIXER,name='PCM Volume' %d ; amixer -c %d cset numid=6,iface=MIXER,name='L ADC VOLUME' %d", card, r_value,card, l_value);
+	char cmd[256] = {0};
+	snprintf(cmd, sizeof(cmd), "amixer -c %d cset numid=5,iface=MIXER,name='PCM Volume' %d ; amixer -c %d cset numid=6,iface=MIXER,name='L ADC VOLUME' %d", card, r_value, card, l_value);
 	system(cmd);
 
-//	memset(cmd, 0, 128);
-//	sprintf(cmd, "amixer -c %d cset numid=6,iface=MIXER,name='L ADC VOLUME' %d", card, l_value);
-//	system(cmd);
+	//	memset(cmd, 0, 128);
+	//	sprintf(cmd, "amixer -c %d cset numid=6,iface=MIXER,name='L ADC VOLUME' %d", card, l_value);
+	//	system(cmd);
 
 	PRINTF("num=%d,card=%d,RVolume=%d,LVolume=%d\n", num, card, r_value, l_value);
 	return 0;
@@ -726,11 +726,12 @@ int audio_update_config(int input, int audio_input)
 		ERR_PRN("audio_setParam failed!\n");
 		return -1;
 	}
-	PRINTF("num=%d,audio_input=%d,mute=%d,Lvolume=%d,Rvolume=%d\n",num,audio_input,cinfo.is_mute,cinfo.lvolume, cinfo.rvolume);
+
+	PRINTF("num=%d,audio_input=%d,mute=%d,Lvolume=%d,Rvolume=%d\n", num, audio_input, cinfo.is_mute, cinfo.lvolume, cinfo.rvolume);
 
 	//	audio_setCapParamInput(audio_input, info.InputMode);
 	audio_setCapParamSampleRate(gEnc2000.audioencLink[num].pacaphandle, ChangeSampleIndex(info.SampleRateIndex));
-//	audio_setCapParamFlag(gEnc2000.audioencLink[num].pacaphandle);//不是每次都需要重建PCM
+	//	audio_setCapParamFlag(gEnc2000.audioencLink[num].pacaphandle);//不是每次都需要重建PCM
 
 	adjust_volume(num, cinfo.lvolume, cinfo.rvolume);
 	set_mute_status(audio_input, cinfo.is_mute);

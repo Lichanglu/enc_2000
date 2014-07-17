@@ -51,7 +51,7 @@ int updateConfigFile(char *filename,char *source,char *value)
 	char tmpfilename[20]={0};
 	char syscmd[100]={0};
 	strcpy(tmpfilename,"tmpconfig");
-	sprintf(syscmd,"cp -f %s %s",tmpfilename,filename);
+	sprintf(syscmd,"cp -f %s %s;sync",tmpfilename,filename);
 	file=fopen(tmpfilename,"wb+");
 	if(file==NULL){
 		return -1;
